@@ -207,9 +207,11 @@ class Component {
     return header;
   }
 
-  paragraph(text, ...className) {
+  p(text, ...className) {
     let p = document.createElement("p");
-    p.classList.add(...className);
+    if (className.length != 0) {
+      p.classList.add(...className);
+    }
 
     p.textContent = text;
 
@@ -475,7 +477,9 @@ class Component {
     const locationButton = this.button("", "location");
     const locationIcon = this.faIcon("fas", "fa-map-marker-alt")
 
+    locationButton.setAttribute("type", "button");
     locationButton.append(locationIcon);
+    locationButton.addEventListener("click", Utility.getGeolocation);
     searchElem.querySelector(".search").before(locationButton);
 
     return searchElem;

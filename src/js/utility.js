@@ -81,4 +81,26 @@ export default class Utility {
     return elem;
   }
 
+  /**
+   * Get the user's location, using the Geolocation API.
+   * @returns {string} The latitude and longitude of the user's location. 
+   */
+  static getGeolocation() {
+
+    function success(position) {
+      const latitude  = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      const latlong = `${latitude},${longitude}`;
+      
+      return latlong;
+    }
+  
+    function error() {
+      return "Unable to retrieve your location";
+    }
+
+    return navigator.geolocation.getCurrentPosition(success, error);
+  }
+
 }

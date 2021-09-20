@@ -1,3 +1,15 @@
 .weather-widget {
   border: 1px solid black;
+  min-width: 300px;
+  width: 50vw;
+  max-width: 800px;
+  margin: 25px auto;
+}
+
+.search-container {
+}
+
+.display-options {
+  display: flex;
+  justify-content: space-between;
 }
