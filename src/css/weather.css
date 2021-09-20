@@ -13,3 +13,25 @@
   display: flex;
   justify-content: space-between;
 }
+
+.widget-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.selected {
+  background-color: rgba(100,100,100,0.5);
+}
+
+.temperature:after{
+  content: "°";
+}
+
+.min-temp, .max-temp {
+  display: inline-block;
+}
+
+.min-temp {
+  border-right: 1px solid black;
+}
