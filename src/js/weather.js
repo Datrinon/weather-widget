@@ -94,8 +94,71 @@ export default class WeatherWidget {
     this.#initFooter();
   }
 
+  /**
+   * Submits a search and queries the location.
+   */
+  #submitSearch(e) {
+    let searchParameter;
+    const searchField = Utility
+        .getMatchingParent(e.currentTarget, ".search-container")
+        .querySelector(".search-field");
+    let searchQuery = searchField.value; 
+    // searches can come as zip code, city name / state, city name / country, or by lat / long coordinates.
+    // trim any extra white space
+    searchQuery = searchQuery.replace(", ", ",");
+    searchQuery = searchQuery.trim(); 
+    
+    // If there are numbers in the query, infer that it is a US zip code.
+    if (searchQuery.match(/[0-9]/g) &&
+        searchQuery.match(/[0-9]/g).length === 5) {
+      searchParameter = "&zip=" + searchQuery;
+    // else check for lat long
+    } else if (searchQuery.match(/[0-9]\./g) &&
+      searchQuery.match(/[0-9]\./g).length === 2) {
+      searchQuery = searchQuery.split(",");
+      searchParameter = `&lat=${searchQuery[0]}&lon=${searchQuery[1]}`;
+    } else {
+      // else just throw it to q to query for.
+      searchParameter = `&q=${searchQuery}`;
+    }
+
+    this.locationQuery = searchParameter;
+    this.#fetchData().then((data) => {
+      // clear a successful search query.
+      searchField.value = "";
+      this.#apiData = data;
+      this.#displayData();
+    }).catch((error) => {
+      console.log(error);
+      // TODO
+      // component method which inserts floating error message above a given element.
+    });
+
+  }
+
+  /**
+   * Get location of the user. 
+   */
+  #getLocation() {
+
+  }
+
+  /**
+   * Initializes the search bar by creating the element and adding the appropriate handlers.
+   */
   #initSearch() {
-    this.#widgetContainer.append(component.geosearch());
+    const searchBar = component.geosearch();
+    searchBar.querySelector(".search").addEventListener("click", (e) => this.#submitSearch.call(this, e));
+    searchBar.querySelector(".location").addEventListener("click", (e) => this.#getLocation.call(this, e));
+    // insert a help icon to inform on the format.
+    const helpButton = component.button("", "help");
+    helpButton.append(component.faIcon("fas", "fa-question-circle"));
+    searchBar.querySelector(".location").insertAdjacentElement("beforebegin", helpButton);
+    
+    // TODO 
+    // Use the validation API in order to make sure you get the right location.
+
+    this.#widgetContainer.append(searchBar);
   }
 
   #initReloadButton() {

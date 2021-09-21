@@ -473,7 +473,7 @@ class Component {
    * a location button.
    */
   geosearch(){
-    const searchElem = this.search("e.g. San Jose, CA / 94025 / lat long");
+    const searchElem = this.search("");
     const locationButton = this.button("", "location");
     const locationIcon = this.faIcon("fas", "fa-map-marker-alt")
 
