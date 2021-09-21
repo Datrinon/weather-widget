@@ -39,3 +39,8 @@
 .today .weather-icon {
   width: 64px;
 }
+
+.multiday {
+  display: flex;
+  flex-direction: row;
+}

@@ -1,3 +1,4 @@
+import {format, addDays} from "date-fns";
 import Utility from "./utility";
 import component from "./component";
 
@@ -27,7 +28,7 @@ export default class WeatherWidget {
    * Location of the user, stored as a component of a query string. 
    * @type {string}
    */
-  location;
+  locationQuery;
   /**
    * Current time; alters the color of the widget. 
    * Night - Dark Blue / Black.
@@ -46,7 +47,12 @@ export default class WeatherWidget {
   * A reference to the data view containing the info collected from the api response 
   * inside of the widget.
   */
-  #dataView;
+  #dataDisplayContainer;
+
+  /**
+   * Data object fetched from the API. Only needs to be retrieved every time a new search occurs or every hour.
+   */
+  #apiData;
 
   /**
    * Create a weather widget.
@@ -62,7 +68,7 @@ export default class WeatherWidget {
    */
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
-    this.#dataView = Utility.createElement("div", "data-view");
+    this.#dataDisplayContainer = Utility.createElement("div", "data-view");
     this.#locationApiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
     this.#weatherApiBase = `https://api.openweathermap.org/data/2.5/onecall?appid=${apiKey}`;
 
@@ -70,9 +76,9 @@ export default class WeatherWidget {
     console.log(this.#locationApiBase);
 
     if (defaultLocation === null) {
-      this.location = "&q=San Francisco,US-CA";
+      this.locationQuery = "&q=San Francisco,US-CA";
     } else {
-      this.location = `&q=${defaultLocation.city}`
+      this.locationQuery = `&q=${defaultLocation.city}`
           + `,${defaultLocation.stateCode},${defaultLocation.countryCode}`;
     }
 
@@ -80,8 +86,11 @@ export default class WeatherWidget {
 
     this.#initSearch();
     this.#initOptionsDisplay(viewMode);
-    this.#widgetContainer.append(this.#dataView);
-    this.#selectDataDisplay();
+    this.#widgetContainer.append(this.#dataDisplayContainer);
+    this.#fetchData().then((data) => {
+      this.#apiData = data;
+      this.#displayData();
+    });
     this.#initFooter();
   }
 
@@ -109,12 +118,30 @@ export default class WeatherWidget {
     const toggleCelsius = component.button("°C", "options-toggleC");
 
     dayViewPanel.append(today, threeDay, weekly);
+    dayViewPanel.querySelectorAll("*")
+      .forEach(button => button.addEventListener("click", (e) => this.#toggleSelected.call(this, e)));
+
+
     metricPanel.append(toggleFahrenheit, toggleCelsius);
     optionsContainer.append(dayViewPanel, metricPanel);
 
     dayViewPanel.children[viewMode].classList.add("selected");
+    dayViewPanel.children[viewMode].setAttribute("disabled", "true");
 
     this.#widgetContainer.append(optionsContainer);
+  }
+
+  #toggleSelected(e) {
+    // remove selected class from the other.
+    const parent = Utility.getMatchingParent(e.currentTarget, ".display-day-view");
+    const currentSelected = parent.querySelector(".selected");
+    currentSelected.classList.remove("selected");
+    currentSelected.removeAttribute("disabled");
+    // toggle selected class on the button
+    e.currentTarget.classList.add("selected");
+    e.currentTarget.setAttribute("disabled", "true");
+    // run displayData method
+    this.#displayData();
   }
 
   /**
@@ -126,7 +153,7 @@ export default class WeatherWidget {
   async #fetchData(...query) {
     try {
       // 1. Location Code.
-      let response = await fetch(this.#locationApiBase + this.location);
+      let response = await fetch(this.#locationApiBase + this.locationQuery);
       let locationData = await response.json();
       let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
       let location = {
@@ -149,30 +176,30 @@ export default class WeatherWidget {
   }
 
   /**
-   * Selects a data display based on the button that was selected. To be called
+   * Shows a data display based on the button that was selected. To be called
    * each time a button is selected on the .display-day-view node.
    */
-  #selectDataDisplay() {
+  #displayData() {
     const dayViewButtons = this.#widgetContainer.querySelector(".display-day-view");
     const selected = dayViewButtons.querySelector(".selected");
     const selectedIndex = Array.from(dayViewButtons.children).indexOf(selected);
 
-    Utility.removeAllChildren(this.#dataView);
+    Utility.removeAllChildren(this.#dataDisplayContainer);
 
     switch(selectedIndex) {
       case 0:
-        this.#dataView.classList.add("today");
+        this.#dataDisplayContainer.classList.add("today");
         this.#render1DayDataDisplay();
         break;
         case 1:
         // TODO replace this with renderNDayDataDisplay(), since these two will 
         // conceptually be the same.
-        this.#dataView.classList.add("three-day");
-        // this.#render3DayDataDisplay();
+        this.#dataDisplayContainer.classList.add("three-day", "multiday");
+        this.#renderNDaysDataDisplay(3);
         break;
       case 2:
-        this.#dataView.classList.add("weekly");
-        // this.#renderWeeklyDataDisplay();
+        this.#dataDisplayContainer.classList.add("weekly", "multiday");
+        this.#renderNDaysDataDisplay(7);
         break;
     }
   }
@@ -187,37 +214,54 @@ export default class WeatherWidget {
     const country = component.p("Country", "display-town");
     const weatherIcon = component.img("", "weather-icon");
     const temperature = component.p("--", "current-temp", "temperature");
-    this.#dataView.append(city, country, weatherIcon, temperature);
+    this.#dataDisplayContainer.append(city, country, weatherIcon, temperature);
 
     const minMax = component.div("min-max-temp");
     const min = component.p("--", "min-temp", "temperature");
     const max = component.p("--", "max-temp", "temperature");
     minMax.append(min, max);
-    this.#dataView.append(minMax);
+    this.#dataDisplayContainer.append(minMax);
 
     const condition = component.p("Condition here.", "weather-description");
-    this.#dataView.append(condition);
+    this.#dataDisplayContainer.append(condition);
 
-    // fetch data, and then, fill out the rest of the code.
-    this.#fetchData().then((data) => {
-      console.log(data);
-
-      city.textContent = data.location.city;
-      country.textContent = data.location.country;
-      weatherIcon.src = `http://openweathermap.org/img/wn/${data.weatherData.current.weather[0].icon}@2x.png`;
-      temperature.textContent = Math.round(data.weatherData.current.temp);
-      min.textContent = Math.round(data.weatherData.daily[0].temp.min);
-      max.textContent = Math.round(data.weatherData.daily[0].temp.max);
-      condition.textContent = Utility.toSentence(data.weatherData.daily[0].weather[0].description);
-    });
+    city.textContent = this.#apiData.location.city;
+    country.textContent = this.#apiData.location.country;
+    weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.current.weather[0].icon}@2x.png`;
+    temperature.textContent = Math.round(this.#apiData.weatherData.current.temp);
+    min.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.min);
+    max.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.max);
+    condition.textContent = Utility.toSentence(this.#apiData.weatherData.daily[0].weather[0].description);
   }
 
   /**
    * For displaying the weather of the next N days.
    * @param {n} - The number of days to fetch data for.
    */
-  #renderNDaysDataDisplay() {
+  #renderNDaysDataDisplay(n) {
 
+    const today = new Date();
+
+    for (let i = 0; i < n; i++) {
+      const dayContainer = component.div("day");
+      const dayLabel = component.p("", "day-of-week");
+      const weatherIcon = component.img(null);
+      const dayTemp = component.p("--", "day-temp", "temperature");
+      const minMax = component.div("min-max-temp");
+      const min = component.p("--", "min-temp", "temperature");
+      const max = component.p("--", "max-temp", "temperature");
+      
+      dayLabel.textContent = format(addDays(today, i), "eee");
+      weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.daily[i].weather[0].icon}@2x.png`;
+      dayTemp.textContent = this.#apiData.weatherData.daily[i].temp.day;
+      min.textContent = this.#apiData.weatherData.daily[i].temp.min;
+      max.textContent = this.#apiData.weatherData.daily[i].temp.max;
+
+      minMax.append(min, max);
+      dayContainer.append(dayLabel, weatherIcon, dayTemp, minMax);
+
+      this.#dataDisplayContainer.append(dayContainer);
+    }
   }
 
   #initFooter() {

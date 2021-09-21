@@ -72,7 +72,7 @@ export default class Utility {
    * @returns {HTMLelement} - Parent of elem.
    */
   static getMatchingParent(elem, selector) {
-    while(!elem.parentNode.matches(selector)) {
+    while(!elem.matches(selector)) {
       elem = elem.parentNode;
       if (elem.matches("html")) {
         return null;
@@ -109,7 +109,7 @@ export default class Utility {
    */
   static removeAllChildren(parent) {
     while(parent.firstChild) {
-      parent.remove(parent.firstChild);
+      parent.removeChild(parent.firstChild);
     }
   }
 
