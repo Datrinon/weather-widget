@@ -103,4 +103,23 @@ export default class Utility {
     return navigator.geolocation.getCurrentPosition(success, error);
   }
 
+  /**
+   * Remove all children from a parent node.
+   * @param {HTMLElementNode} parent - Parent node containing children.
+   */
+  static removeAllChildren(parent) {
+    while(parent.firstChild) {
+      parent.remove(parent.firstChild);
+    }
+  }
+
+  /**
+   * Sentence format. Makes sure the first letter is capitalized, and then 
+   * a period is appended.
+   * 
+   * @param {string} string - a string to sentence-case.
+   */
+  static toSentence(string) {
+    return string[0].toUpperCase() + string.slice(1) + ".";
+  }
 }

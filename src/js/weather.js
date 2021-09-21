@@ -16,20 +16,15 @@ export default class WeatherWidget {
    */
   #widgetContainer;
   /**
-   * Location of the user... data type?
-   */
-  #location;
-  /**
    * Boolean indicating whether to swap to celsius or USA.
    * determined by location.
    */
   celsiusMode;
-
   /**
-   * Default location to pick to display temperatures.
+   * Location of the user, stored as a component of a query string. 
+   * @type {string}
    */
-  #defaultLocation;
-  
+  location;
   /**
    * Current time; alters the color of the widget. 
    * Night - Dark Blue / Black.
@@ -43,6 +38,12 @@ export default class WeatherWidget {
    * Cloudy / Snowy / Rainy / Hazy - Gray overlay.
    */
   #currentCondition;
+
+  /** 
+  * A reference to the data view containing the info collected from the api response 
+  * inside of the widget.
+  */
+  #dataView;
 
   /**
    * Create a weather widget.
@@ -58,13 +59,15 @@ export default class WeatherWidget {
    */
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
+    this.#dataView = Utility.createElement("div", "data-view");
     this.#apiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
+    // debug
     console.log(this.#apiBase);
 
     if (defaultLocation === null) {
-      this.#defaultLocation = "&q=San Francisco,US-CA";
+      this.location = "&q=San Francisco,US-CA";
     } else {
-      this.#defaultLocation = `&q=${defaultLocation.city}`
+      this.location = `&q=${defaultLocation.city}`
           + `,${defaultLocation.stateCode},${defaultLocation.countryCode}`;
     }
 
@@ -72,9 +75,9 @@ export default class WeatherWidget {
 
     this.#initSearch();
     this.#initOptionsDisplay(viewMode);
-    this.#initDataDisplay();
+    this.#widgetContainer.append(this.#dataView);
+    this.#selectDataDisplay();
     this.#initFooter();
-    this.#fetchData(defaultLocation);
   }
 
   #initSearch() {
@@ -104,40 +107,100 @@ export default class WeatherWidget {
     metricPanel.append(toggleFahrenheit, toggleCelsius);
     optionsContainer.append(dayViewPanel, metricPanel);
 
-    dayViewPanel.children[0].classList.add("selected");
+    dayViewPanel.children[viewMode].classList.add("selected");
 
     this.#widgetContainer.append(optionsContainer);
   }
 
   /**
-   * Fetch data given a location as a ZIP code, city, or city, state format.
-   * @param {string} location 
+   * Fetch data given a string of parameters. The API key and mode are already
+   * provided for. At most, you just have to provide a location and timespan.
+   * @param {string[]} query 
+   * @returns {{}} JSON data object containing API response.
    */
-  async #fetchData(location) {
-    const response = await fetch(this.#apiBase + this.#defaultLocation);
-    const data = await response.json();
-    console.log(data);
+  async #fetchData(...query) {
+    try {
+      const queryString = query.join("&");
+      let units = "&units=imperial&";
+      
+      if (this.celsiusMode) {
+        units = "&units=metric&";
+      
+      }
+      console.log(this.#apiBase + queryString);
+      const response = await fetch(this.#apiBase + units + queryString);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      // TODO display on the GUI that there was an error.
+    }
   }
 
-  #initDataDisplay() {
-    const dataView = component.div("data-section");
+  /**
+   * Selects a data display based on the button that was selected. To be called
+   * each time a button is selected on the .display-day-view node.
+   */
+  #selectDataDisplay() {
+    const dayViewButtons = this.#widgetContainer.querySelector(".display-day-view");
+    const selected = dayViewButtons.querySelector(".selected");
+    const selectedIndex = Array.from(dayViewButtons.children).indexOf(selected);
 
+    Utility.removeAllChildren(this.#dataView);
+
+    switch(selectedIndex) {
+      case 0:
+        this.#dataView.classList.add("1day");
+        this.#render1DayDataDisplay();
+        break;
+        case 1:
+        // TODO replace this with renderNDayDataDisplay(), since these two will 
+        // conceptually be the same.
+        this.#dataView.classList.add("3day");
+        // this.#render3DayDataDisplay();
+        break;
+      case 2:
+        this.#dataView.classList.add("weekly");
+        // this.#renderWeeklyDataDisplay();
+        break;
+    }
+  }
+
+  /**
+   * For displaying the current day's data.
+   * This will create elements, and then populate them with data fetched from
+   * OpenWeather.
+   */
+  #render1DayDataDisplay() {
     const city = component.p("City", "display-city");
     const country = component.p("Country", "display-town");
     const temperature = component.p("--", "current-temp", "temperature");
-    dataView.append(city, country, temperature);
+    this.#dataView.append(city, country, temperature);
 
     const minMax = component.div("min-max-temp");
     const min = component.p("--", "min-temp", "temperature");
     const max = component.p("--", "max-temp", "temperature");
     minMax.append(min, max);
-    dataView.append(minMax);
+    this.#dataView.append(minMax);
 
     const condition = component.p("Condition here.", "weather-description");
-    dataView.append(condition);
-    
+    this.#dataView.append(condition);
 
-    this.#widgetContainer.append(dataView);
+    // fetch data, and then, fill out the rest of the code.
+    this.#fetchData(this.location).then((data) => {
+      console.log(data);
+
+      city.textContent = data.name;
+      country.textContent = data.sys.country;
+      temperature.textContent = Math.round(data.main.temp);
+      min.textContent = Math.round(data.main.temp_min);
+      max.textContent = Math.round(data.main.temp_max);
+      condition.textContent = Utility.toSentence(data.weather[0].description);
+    });
+  }
+
+  // get the weather icon based on the given description.
+  #getWeatherIcon(description) {
+
   }
 
   #initFooter() {
