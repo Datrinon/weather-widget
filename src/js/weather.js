@@ -119,29 +119,63 @@ export default class WeatherWidget {
 
     dayViewPanel.append(today, threeDay, weekly);
     dayViewPanel.querySelectorAll("*")
-      .forEach(button => button.addEventListener("click", (e) => this.#toggleSelected.call(this, e)));
-
-
-    metricPanel.append(toggleFahrenheit, toggleCelsius);
-    optionsContainer.append(dayViewPanel, metricPanel);
-
+      .forEach(button => button.addEventListener("click",
+          (e) => {
+            self.#toggleSelected(e, ".display-day-view");
+            self.#displayData();
+          }));
     dayViewPanel.children[viewMode].classList.add("selected");
     dayViewPanel.children[viewMode].setAttribute("disabled", "true");
 
+    metricPanel.append(toggleFahrenheit, toggleCelsius);
+    if (this.celsiusMode) {
+      toggleCelsius.classList.add("selected");
+      toggleCelsius.setAttribute("disabled", "true");
+    } else {
+      toggleFahrenheit.classList.add("selected");
+      toggleFahrenheit.setAttribute("disabled", "true");
+    }
+    toggleFahrenheit.addEventListener("click", (e) => this.#toggleMeasurementSystem.call(this, e));
+    toggleCelsius.addEventListener("click", (e) => this.#toggleMeasurementSystem.call(this, e));
+
+    optionsContainer.append(dayViewPanel, metricPanel);
     this.#widgetContainer.append(optionsContainer);
   }
 
-  #toggleSelected(e) {
+  /**
+   * Swap measurement systems, updating all elements with .temperature with the 
+   * new value.
+   */
+  #toggleMeasurementSystem(e) {
+    this.#toggleSelected(e, ".metrics");
+    this.celsiusMode = !this.celsiusMode;
+    
+    if(this.celsiusMode) {
+      document.querySelectorAll(".temperature").forEach(temp =>{
+        let temperature = parseInt(temp.textContent);
+        temperature = Math.round((5/9) * (temperature - 32));
+
+        temp.textContent = temperature;
+      });
+    } else {
+      document.querySelectorAll(".temperature").forEach(temp =>{
+        let temperature = parseInt(temp.textContent);
+        temperature = Math.round(((9/5) * temperature) + 32);
+
+        temp.textContent = temperature;
+      });
+    }
+  }
+
+  #toggleSelected(e, parentSelector) {
     // remove selected class from the other.
-    const parent = Utility.getMatchingParent(e.currentTarget, ".display-day-view");
+    const parent = Utility.getMatchingParent(e.currentTarget, parentSelector);
     const currentSelected = parent.querySelector(".selected");
     currentSelected.classList.remove("selected");
     currentSelected.removeAttribute("disabled");
     // toggle selected class on the button
     e.currentTarget.classList.add("selected");
     e.currentTarget.setAttribute("disabled", "true");
-    // run displayData method
-    this.#displayData();
   }
 
   /**
@@ -188,17 +222,17 @@ export default class WeatherWidget {
 
     switch(selectedIndex) {
       case 0:
-        this.#dataDisplayContainer.classList.add("today");
+        this.#dataDisplayContainer.className = "data-view today";
         this.#render1DayDataDisplay();
         break;
         case 1:
         // TODO replace this with renderNDayDataDisplay(), since these two will 
         // conceptually be the same.
-        this.#dataDisplayContainer.classList.add("three-day", "multiday");
+        this.#dataDisplayContainer.className = "data-view three-day multiday";
         this.#renderNDaysDataDisplay(3);
         break;
       case 2:
-        this.#dataDisplayContainer.classList.add("weekly", "multiday");
+        this.#dataDisplayContainer.className = "data-view weekly multiday";
         this.#renderNDaysDataDisplay(7);
         break;
     }
@@ -253,9 +287,9 @@ export default class WeatherWidget {
       
       dayLabel.textContent = format(addDays(today, i), "eee");
       weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.daily[i].weather[0].icon}@2x.png`;
-      dayTemp.textContent = this.#apiData.weatherData.daily[i].temp.day;
-      min.textContent = this.#apiData.weatherData.daily[i].temp.min;
-      max.textContent = this.#apiData.weatherData.daily[i].temp.max;
+      dayTemp.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.day);
+      min.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.min);
+      max.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.max);
 
       minMax.append(min, max);
       dayContainer.append(dayLabel, weatherIcon, dayTemp, minMax);

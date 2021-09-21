@@ -122,4 +122,22 @@ export default class Utility {
   static toSentence(string) {
     return string[0].toUpperCase() + string.slice(1) + ".";
   }
+
+  /**
+   * A callback function that should be assigned to each button
+   * when only one of them should be toggled. Functions like a radio
+   * button but with different styling.
+   * @param {*} e 
+   * @param {*} parentSelector 
+   */
+  static toggleSelected(e, parentSelector) {
+    // remove selected class from the other.
+    const parent = Utility.getMatchingParent(e.currentTarget, parentSelector);
+    const currentSelected = parent.querySelector(".selected");
+    currentSelected.classList.remove("selected");
+    currentSelected.removeAttribute("disabled");
+    // toggle selected class on the button
+    e.currentTarget.classList.add("selected");
+    e.currentTarget.setAttribute("disabled", "true");
+  }
 }
