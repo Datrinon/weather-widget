@@ -35,3 +35,7 @@
 .min-temp {
   border-right: 1px solid black;
 }
+
+.today .weather-icon {
+  width: 100px;
+}

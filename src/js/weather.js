@@ -149,13 +149,13 @@ export default class WeatherWidget {
 
     switch(selectedIndex) {
       case 0:
-        this.#dataView.classList.add("1day");
+        this.#dataView.classList.add("today");
         this.#render1DayDataDisplay();
         break;
         case 1:
         // TODO replace this with renderNDayDataDisplay(), since these two will 
         // conceptually be the same.
-        this.#dataView.classList.add("3day");
+        this.#dataView.classList.add("three-day");
         // this.#render3DayDataDisplay();
         break;
       case 2:
@@ -173,8 +173,9 @@ export default class WeatherWidget {
   #render1DayDataDisplay() {
     const city = component.p("City", "display-city");
     const country = component.p("Country", "display-town");
+    const weatherIcon = component.img("", "weather-icon");
     const temperature = component.p("--", "current-temp", "temperature");
-    this.#dataView.append(city, country, temperature);
+    this.#dataView.append(city, country, weatherIcon, temperature);
 
     const minMax = component.div("min-max-temp");
     const min = component.p("--", "min-temp", "temperature");
@@ -191,16 +192,12 @@ export default class WeatherWidget {
 
       city.textContent = data.name;
       country.textContent = data.sys.country;
+      weatherIcon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
       temperature.textContent = Math.round(data.main.temp);
       min.textContent = Math.round(data.main.temp_min);
       max.textContent = Math.round(data.main.temp_max);
       condition.textContent = Utility.toSentence(data.weather[0].description);
     });
-  }
-
-  // get the weather icon based on the given description.
-  #getWeatherIcon(description) {
-
   }
 
   #initFooter() {
