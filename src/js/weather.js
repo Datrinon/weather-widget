@@ -7,10 +7,13 @@ import component from "./component";
 export default class WeatherWidget {
   
   /**
-   * The base path to access the OpenWeather API.
+   * The base path to access the OpenWeather API and obtain coordinates.
    */
-  #apiBase;
-
+  #locationApiBase;
+  /**
+   * The base path to access the OpenWeather API and obtain temperatures.
+   */
+  #weatherApiBase;
   /**
    * Article element containing the weather widget. 
    */
@@ -60,9 +63,11 @@ export default class WeatherWidget {
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
     this.#dataView = Utility.createElement("div", "data-view");
-    this.#apiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
+    this.#locationApiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
+    this.#weatherApiBase = `https://api.openweathermap.org/data/2.5/onecall?appid=${apiKey}`;
+
     // debug
-    console.log(this.#apiBase);
+    console.log(this.#locationApiBase);
 
     if (defaultLocation === null) {
       this.location = "&q=San Francisco,US-CA";
@@ -120,17 +125,24 @@ export default class WeatherWidget {
    */
   async #fetchData(...query) {
     try {
-      const queryString = query.join("&");
-      let units = "&units=imperial&";
-      
-      if (this.celsiusMode) {
-        units = "&units=metric&";
-      
-      }
-      console.log(this.#apiBase + queryString);
-      const response = await fetch(this.#apiBase + units + queryString);
-      const data = await response.json();
-      return data;
+      // 1. Location Code.
+      let response = await fetch(this.#locationApiBase + this.location);
+      let locationData = await response.json();
+      let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
+      let location = {
+        "country" : locationData.sys.country,
+        "city" : locationData.name
+      };
+
+      // 2. Weather Code.
+      let units = this.celsiusMode ? "&units=metric&" : "&units=imperial&";
+      let queryString = query.length !== 0 ? query.join("&") : "";
+
+      let weatherResponse = await fetch(this.#weatherApiBase + coords + units + queryString);
+      let weatherData = await weatherResponse.json();
+
+      // 3. Return them together.
+      return {weatherData, location};
     } catch (error) {
       // TODO display on the GUI that there was an error.
     }
@@ -187,17 +199,25 @@ export default class WeatherWidget {
     this.#dataView.append(condition);
 
     // fetch data, and then, fill out the rest of the code.
-    this.#fetchData(this.location).then((data) => {
+    this.#fetchData().then((data) => {
       console.log(data);
 
-      city.textContent = data.name;
-      country.textContent = data.sys.country;
-      weatherIcon.src = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
-      temperature.textContent = Math.round(data.main.temp);
-      min.textContent = Math.round(data.main.temp_min);
-      max.textContent = Math.round(data.main.temp_max);
-      condition.textContent = Utility.toSentence(data.weather[0].description);
+      city.textContent = data.location.city;
+      country.textContent = data.location.country;
+      weatherIcon.src = `http://openweathermap.org/img/wn/${data.weatherData.current.weather[0].icon}@2x.png`;
+      temperature.textContent = Math.round(data.weatherData.current.temp);
+      min.textContent = Math.round(data.weatherData.daily[0].temp.min);
+      max.textContent = Math.round(data.weatherData.daily[0].temp.max);
+      condition.textContent = Utility.toSentence(data.weatherData.daily[0].weather[0].description);
     });
+  }
+
+  /**
+   * For displaying the weather of the next N days.
+   * @param {n} - The number of days to fetch data for.
+   */
+  #renderNDaysDataDisplay() {
+
   }
 
   #initFooter() {
