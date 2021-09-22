@@ -83,7 +83,8 @@ export default class Utility {
 
   /**
    * Get the user's location, using the Geolocation API.
-   * @returns {string} The latitude and longitude of the user's location. 
+   * @returns {string} The latitude and longitude of the user's location, or null
+   * if the user denies permission requests.
    */
   static getGeolocation() {
 
@@ -92,15 +93,18 @@ export default class Utility {
       const longitude = position.coords.longitude;
 
       const latlong = `${latitude},${longitude}`;
-      
-      return latlong;
+
+      return Promise.resolve(latlong);
     }
   
     function error() {
-      return "Unable to retrieve your location";
+      let error = "User denied location permissions.";
+      return Promise.reject(error)
     }
 
-    return navigator.geolocation.getCurrentPosition(success, error);
+    return new Promise(() => {
+      navigator.geolocation.getCurrentPosition(success, error);
+    });
   }
 
   /**

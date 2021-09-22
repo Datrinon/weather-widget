@@ -28,7 +28,7 @@ export default class WeatherWidget {
    * Location of the user, stored as a component of a query string. 
    * @type {string}
    */
-  locationQuery;
+  #locationQuery;
   /**
    * Current time; alters the color of the widget. 
    * Night - Dark Blue / Black.
@@ -76,9 +76,9 @@ export default class WeatherWidget {
     console.log(this.#locationApiBase);
 
     if (defaultLocation === null) {
-      this.locationQuery = "&q=San Francisco,US-CA";
+      this.#locationQuery = "&q=San Francisco,US-CA";
     } else {
-      this.locationQuery = `&q=${defaultLocation.city}`
+      this.#locationQuery = `&q=${defaultLocation.city}`
           + `,${defaultLocation.stateCode},${defaultLocation.countryCode}`;
     }
 
@@ -123,7 +123,7 @@ export default class WeatherWidget {
       searchParameter = `&q=${searchQuery}`;
     }
 
-    this.locationQuery = searchParameter;
+    this.#locationQuery = searchParameter;
     this.#fetchData().then((data) => {
       // clear a successful search query.
       searchField.value = "";
@@ -131,20 +131,37 @@ export default class WeatherWidget {
       this.#displayData();
     }).catch((error) => {
       console.log(error);
-      component.tooltip(searchField.parentNode, "Invalid search. Check help for formatting assistance.", 3);
+      component.tooltip(searchField.parentNode,
+          "Invalid search. Check help for formatting assistance.", 3);
     });
   }
 
-  #onSearchSubmit() {
-
-  }
-
   /**
-   * Get location of the user. 
+   * Get location of the user. Uses callback patterns rather than async / await due
+   * to the nature of the navigator API (it is asynchronous but the needed
+   * method returns void rather than the result of the callbacks it takes in as parameters)
    */
-  #getLocation() {
-    //TODO
-    // Stub, fill in l8r.
+  #getLocation(e) {
+    let self = this;
+    function success(position) {
+      const latitude  = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      let searchParameter = `&lat=${latitude}&lon=${longitude}`;
+      self.#locationQuery = searchParameter;
+      self.#fetchData().then((data) => {
+        self.#apiData = data;
+        self.#displayData();
+      })
+    }
+  
+    function error() {
+      const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
+      component.tooltip(parent,
+          "Please allow location permissions to use your location on the widget.", 3);
+      }
+    
+      navigator.geolocation.getCurrentPosition(success, error);
   }
 
   /**
@@ -153,8 +170,8 @@ export default class WeatherWidget {
   #initSearch() {
     const searchBarForm = component.geosearch();
     // TODO debug remove later?
-    // searchBar.querySelector(".search").addEventListener("click", (e) => this.#submitSearch.call(this, e));
-    searchBarForm.querySelector(".location").addEventListener("click", (e) => this.#getLocation.call(this, e));
+    searchBarForm.querySelector(".location").addEventListener("click",
+        (e) => this.#getLocation.call(this, e));
     
     // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
@@ -191,6 +208,7 @@ export default class WeatherWidget {
   }
 
   #initOptionsDisplay(viewMode) {
+    let self = this;
     const optionsContainer = Utility.createElement("div", "display-options");
     const dayViewPanel = Utility.createElement("div", "display-day-view");
     const today = component.button("Today", "options-today");
@@ -269,7 +287,7 @@ export default class WeatherWidget {
    */
   async #fetchData(...query) {
     // 1. Location Code.
-    let response = await fetch(this.#locationApiBase + this.locationQuery);
+    let response = await fetch(this.#locationApiBase + this.#locationQuery);
     let locationData = await response.json();
     let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
     let location = {
@@ -305,8 +323,6 @@ export default class WeatherWidget {
         this.#render1DayDataDisplay();
         break;
         case 1:
-        // TODO replace this with renderNDayDataDisplay(), since these two will 
-        // conceptually be the same.
         this.#dataDisplayContainer.className = "data-view three-day multiday";
         this.#renderNDaysDataDisplay(3);
         break;
@@ -352,6 +368,12 @@ export default class WeatherWidget {
    * @param {n} - The number of days to fetch data for.
    */
   #renderNDaysDataDisplay(n) {
+    const city = component.p("City", "display-city");
+    const country = component.p("Country", "display-town");
+    city.textContent = this.#apiData.location.city;
+    country.textContent = this.#apiData.location.country;
+
+    this.#dataDisplayContainer.append(city, country);
 
     const today = new Date();
 

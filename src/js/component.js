@@ -501,7 +501,9 @@ class Component {
       tooltipContainer.append(tooltipMsg);
     }
 
-    tooltipContainer.style.cssText = "position: absolute; top: 100%;  z-index: 10; width: 75%";
+    tooltipContainer.style.cssText = "position: absolute; top: 100%; width: 75%";
+    // this ensures that the latest tooltips always appear on the top.
+    tooltipContainer.style.zIndex = 10 + 10 * (document.querySelectorAll(".tooltip").length);
 
     elem.append(tooltipContainer);
 
