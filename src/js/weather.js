@@ -130,9 +130,10 @@ export default class WeatherWidget {
       this.#displayData();
     }).catch((error) => {
       console.log(error);
-      // TODO
-      // component method which inserts floating error message above a given element.
     });
+  }
+
+  #onSearchSubmit() {
 
   }
 
@@ -157,6 +158,8 @@ export default class WeatherWidget {
     
     // TODO 
     // Use the validation API in order to make sure you get the right location.
+    // let's leverage the submit
+    
 
     this.#widgetContainer.append(searchBar);
   }
@@ -248,28 +251,24 @@ export default class WeatherWidget {
    * @returns {{}} JSON data object containing API response.
    */
   async #fetchData(...query) {
-    try {
-      // 1. Location Code.
-      let response = await fetch(this.#locationApiBase + this.locationQuery);
-      let locationData = await response.json();
-      let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
-      let location = {
-        "country" : locationData.sys.country,
-        "city" : locationData.name
-      };
+    // 1. Location Code.
+    let response = await fetch(this.#locationApiBase + this.locationQuery);
+    let locationData = await response.json();
+    let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
+    let location = {
+      "country" : locationData.sys.country,
+      "city" : locationData.name
+    };
 
-      // 2. Weather Code.
-      let units = this.celsiusMode ? "&units=metric&" : "&units=imperial&";
-      let queryString = query.length !== 0 ? query.join("&") : "";
+    // 2. Weather Code.
+    let units = this.celsiusMode ? "&units=metric&" : "&units=imperial&";
+    let queryString = query.length !== 0 ? query.join("&") : "";
 
-      let weatherResponse = await fetch(this.#weatherApiBase + coords + units + queryString);
-      let weatherData = await weatherResponse.json();
+    let weatherResponse = await fetch(this.#weatherApiBase + coords + units + queryString);
+    let weatherData = await weatherResponse.json();
 
-      // 3. Return them together.
-      return {weatherData, location};
-    } catch (error) {
-      // TODO display on the GUI that there was an error.
-    }
+    // 3. Return them together.
+    return {weatherData, location};
   }
 
   /**
