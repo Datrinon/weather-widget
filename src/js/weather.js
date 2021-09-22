@@ -7,6 +7,7 @@ import component from "./component";
  */
 export default class WeatherWidget {
   
+  #STORAGE_KEY = "WEATHER_WIDGET_LOCATION";
   /**
    * The base path to access the OpenWeather API and obtain coordinates.
    */
@@ -64,19 +65,23 @@ export default class WeatherWidget {
    *  {string} city,
    *  {string} stateCode,
    *  {string} countryCode
-   * }} defaultLocation - Default location to utilize. Codes align to ISO-3166
+   * }} defaultLocation - Default location to utilize. Codes align to ISO-3166. You
+   * can leave this null if the user has already searched for a place.
    */
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
     this.#dataDisplayContainer = Utility.createElement("div", "data-view");
     this.#locationApiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
     this.#weatherApiBase = `https://api.openweathermap.org/data/2.5/onecall?appid=${apiKey}`;
-
+    
     // debug
     console.log(this.#locationApiBase);
 
     if (defaultLocation === null) {
-      this.#locationQuery = "&q=San Francisco,US-CA";
+      this.#locationQuery = localStorage.getItem(this.#STORAGE_KEY);
+      if (!this.#locationQuery) {
+        this.#locationQuery = "&q=San Francisco,US-CA";
+      }
     } else {
       this.#locationQuery = `&q=${defaultLocation.city}`
           + `,${defaultLocation.stateCode},${defaultLocation.countryCode}`;
@@ -88,11 +93,15 @@ export default class WeatherWidget {
     this.#initOptionsDisplay(viewMode);
     this.#widgetContainer.append(this.#dataDisplayContainer);
     // TODO uncomment this, commented to save api calls
-    // this.#fetchData().then((data) => {
-    //   this.#apiData = data;
-    //   this.#displayData();
-    // });
+    this.#fetchData().then((data) => {
+      this.#apiData = data;
+      this.#displayData();
+    });
     this.#initFooter();
+
+    window.onbeforeunload = () => {
+      this.saveLocationToStorage.call(this);
+    }
   }
 
   /**
@@ -151,7 +160,7 @@ export default class WeatherWidget {
    * to the nature of the navigator API (it is asynchronous but the needed
    * method returns void rather than the result of the callbacks it takes in as parameters)
    */
-  #getLocation(e) {
+  #askForLocation(e) {
     let self = this;
     let button = e.currentTarget;
     function success(position) {
@@ -182,7 +191,7 @@ export default class WeatherWidget {
     const searchBarForm = component.geosearch();
     // TODO debug remove later?
     searchBarForm.querySelector(".location").addEventListener("click",
-        (e) => this.#getLocation.call(this, e));
+        (e) => this.#askForLocation.call(this, e));
     
     // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
@@ -454,5 +463,9 @@ export default class WeatherWidget {
 
   get widget() {
     return this.#widgetContainer;
+  }
+
+  saveLocationToStorage(){
+    localStorage.setItem(this.#STORAGE_KEY, this.#locationQuery);
   }
 }
