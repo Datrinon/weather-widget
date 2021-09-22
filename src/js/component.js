@@ -489,30 +489,45 @@ class Component {
   /**
    * Creates a tooltip-esque message which hovers below, relative to an element's position, 
    * for a provided duration. Only attach to relatively-positioned elements.
-   * @param {HTMLElement} (elem) - Element to attach to.
+   * @param {HTMLElement} (elem) - Positioned element to attach to. 
    * @param {string} (msg) - Message to display.
-   * @param {number} (s) - Number of seconds to persist message.
+   * @param {number} (s) - Number of seconds to persist message. 0 for persistent
+   * until user clicks outside of the tooltip.
    */
   tooltip(elem, msg, s){
-    let tooltipContainer = component.div("tooltip");
-    let tooltipMsg = component.p(msg, "tooltip-msg");
-    tooltipContainer.append(tooltipMsg);
+    const tooltipContainer = component.div("tooltip");
+    for (let msgSegment of msg.split("\n")) {
+      const tooltipMsg = component.p(msgSegment, "tooltip-msg");
+      tooltipContainer.append(tooltipMsg);
+    }
 
-    tooltipContainer.style.cssText = "position: absolute; bottom: -15px";
-
-    window.addEventListener("click", (e) => {
-      if (e.currentTarget !== tooltipContainer) {
-        tooltipContainer.remove();
-      }
-    });
+    tooltipContainer.style.cssText = "position: absolute; top: 100%;  z-index: 10; width: 75%";
 
     elem.append(tooltipContainer);
 
-    setTimeout(() => {
-      if (document.body.querySelector(".tooltip")) {
-        tooltipContainer.remove();
+    const p = new Promise((resolve) => {
+      setTimeout(() => {
+        window.addEventListener("click", (e) => {
+          if (e.currentTarget !== tooltipContainer) {
+            console.log("User clicked; removing tooltip");
+            tooltipContainer.remove();
+          }
+        }, {once : true});
+
+        return resolve(null);
+      }, 0);
+    })
+
+    p.then(() => {
+      if (s !== 0) {
+        setTimeout(() => {
+          if (document.body.querySelector(".tooltip")) {
+            console.log("Timer expired; removing tooltip");
+            tooltipContainer.remove();
+          }
+        }, s * 1000);
       }
-    }, s * 1000);
+    });
   }
 }
 

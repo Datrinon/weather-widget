@@ -131,7 +131,7 @@ export default class WeatherWidget {
       this.#displayData();
     }).catch((error) => {
       console.log(error);
-      component.tooltip(searchField, "Invalid search. See help for formatting assistance.", 3);
+      component.tooltip(searchField.parentNode, "Invalid search. Check help for formatting assistance.", 3);
     });
   }
 
@@ -155,22 +155,30 @@ export default class WeatherWidget {
     // TODO debug remove later?
     // searchBar.querySelector(".search").addEventListener("click", (e) => this.#submitSearch.call(this, e));
     searchBarForm.querySelector(".location").addEventListener("click", (e) => this.#getLocation.call(this, e));
+    
     // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
     helpButton.append(component.faIcon("fas", "fa-question-circle"));
+    helpButton.setAttribute("type", "button");
+    helpButton.addEventListener("click", (e) => this.#showSearchTips.call(this, e));
     searchBarForm.querySelector(".location").insertAdjacentElement("beforebegin", helpButton);
-    
-    // TODO 
-    // Use the validation API in order to make sure you get the right location.
-    // let's leverage the submit
-    // and move that to onSearchSubmit
+
     searchBarForm.addEventListener("submit", (e) => {
-      // prevent form submission.
+      // use submit event to catch empty queries.
       e.preventDefault(); 
       this.#submitSearch.call(this, e);
     });
 
     this.#widgetContainer.append(searchBarForm);
+  }
+
+  #showSearchTips(e) {
+    const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
+    const acceptableFormats = `• U.S. Zip Code
+    • City Name
+    • City Name, Country
+    • Latitude, Longitude`;
+    component.tooltip(parent, acceptableFormats, 0);
   }
 
   #initReloadButton() {
