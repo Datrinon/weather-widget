@@ -87,10 +87,11 @@ export default class WeatherWidget {
     this.#initSearch();
     this.#initOptionsDisplay(viewMode);
     this.#widgetContainer.append(this.#dataDisplayContainer);
-    this.#fetchData().then((data) => {
-      this.#apiData = data;
-      this.#displayData();
-    });
+    // TODO uncomment this, commented to save api calls
+    // this.#fetchData().then((data) => {
+    //   this.#apiData = data;
+    //   this.#displayData();
+    // });
     this.#initFooter();
   }
 
@@ -130,6 +131,7 @@ export default class WeatherWidget {
       this.#displayData();
     }).catch((error) => {
       console.log(error);
+      component.tooltip(searchField, "Invalid search. See help for formatting assistance.", 3);
     });
   }
 
@@ -141,27 +143,34 @@ export default class WeatherWidget {
    * Get location of the user. 
    */
   #getLocation() {
-
+    //TODO
+    // Stub, fill in l8r.
   }
 
   /**
    * Initializes the search bar by creating the element and adding the appropriate handlers.
    */
   #initSearch() {
-    const searchBar = component.geosearch();
-    searchBar.querySelector(".search").addEventListener("click", (e) => this.#submitSearch.call(this, e));
-    searchBar.querySelector(".location").addEventListener("click", (e) => this.#getLocation.call(this, e));
+    const searchBarForm = component.geosearch();
+    // TODO debug remove later?
+    // searchBar.querySelector(".search").addEventListener("click", (e) => this.#submitSearch.call(this, e));
+    searchBarForm.querySelector(".location").addEventListener("click", (e) => this.#getLocation.call(this, e));
     // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
     helpButton.append(component.faIcon("fas", "fa-question-circle"));
-    searchBar.querySelector(".location").insertAdjacentElement("beforebegin", helpButton);
+    searchBarForm.querySelector(".location").insertAdjacentElement("beforebegin", helpButton);
     
     // TODO 
     // Use the validation API in order to make sure you get the right location.
     // let's leverage the submit
-    
+    // and move that to onSearchSubmit
+    searchBarForm.addEventListener("submit", (e) => {
+      // prevent form submission.
+      e.preventDefault(); 
+      this.#submitSearch.call(this, e);
+    });
 
-    this.#widgetContainer.append(searchBar);
+    this.#widgetContainer.append(searchBarForm);
   }
 
   #initReloadButton() {

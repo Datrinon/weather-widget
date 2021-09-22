@@ -461,8 +461,9 @@ class Component {
     searchContainer.setAttribute("action", "");
     searchField.type = "search";
     searchField.setAttribute("placeholder", placeholder);
+    searchField.setAttribute("required", true);
     searchButton.append(searchIcon); 
-    searchButton.setAttribute("type", "button");
+    searchButton.setAttribute("type", "submit");
 
     searchContainer.append(searchField, searchButton);
     return searchContainer;
@@ -483,6 +484,35 @@ class Component {
     searchElem.querySelector(".search").before(locationButton);
 
     return searchElem;
+  }
+
+  /**
+   * Creates a tooltip-esque message which hovers below, relative to an element's position, 
+   * for a provided duration. Only attach to relatively-positioned elements.
+   * @param {HTMLElement} (elem) - Element to attach to.
+   * @param {string} (msg) - Message to display.
+   * @param {number} (s) - Number of seconds to persist message.
+   */
+  tooltip(elem, msg, s){
+    let tooltipContainer = component.div("tooltip");
+    let tooltipMsg = component.p(msg, "tooltip-msg");
+    tooltipContainer.append(tooltipMsg);
+
+    tooltipContainer.style.cssText = "position: absolute; bottom: -15px";
+
+    window.addEventListener("click", (e) => {
+      if (e.currentTarget !== tooltipContainer) {
+        tooltipContainer.remove();
+      }
+    });
+
+    elem.append(tooltipContainer);
+
+    setTimeout(() => {
+      if (document.body.querySelector(".tooltip")) {
+        tooltipContainer.remove();
+      }
+    }, s * 1000);
   }
 }
 
