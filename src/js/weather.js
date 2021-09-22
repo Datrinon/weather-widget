@@ -31,6 +31,12 @@ export default class WeatherWidget {
    */
   #locationQuery;
   /**
+   * Based on last valid value assigned to location query, which is needed
+   * to make it update.
+   * @type {string}
+   */
+  #lastValidLocationQuery;
+  /**
    * Current time; alters the color of the widget. 
    * Night - Dark Blue / Black.
    * Sunrise / Sunset (within 1hr timespan) - Orange.
@@ -228,7 +234,9 @@ export default class WeatherWidget {
   #updateDisplay(onSearch=false) {
     this.#fetchData()
       .then((data) => {
+        this.#lastValidLocationQuery = this.#locationQuery;
         if (onSearch) {
+          // guaranteed to always be valid.
           document.querySelector(".search-field").value = "";
         }
         this.#apiData = data;
@@ -238,6 +246,8 @@ export default class WeatherWidget {
         if (onSearch) {
             component.tooltip(document.querySelector(".search-field").parentNode,
                 "Invalid search. Check help for formatting assistance.", 3);
+            console.log("resetting to previous location query...");
+            this.#locationQuery = this.#lastValidLocationQuery;
         }
     });
   }
