@@ -92,11 +92,7 @@ export default class WeatherWidget {
     this.#initSearch();
     this.#initOptionsDisplay(viewMode);
     this.#widgetContainer.append(this.#dataDisplayContainer);
-    // TODO uncomment this, commented to save api calls
-    this.#fetchData().then((data) => {
-      this.#apiData = data;
-      this.#displayData();
-    });
+    this.#updateDisplay();
     this.#initFooter();
 
     window.onbeforeunload = () => {
@@ -143,16 +139,7 @@ export default class WeatherWidget {
     }
 
     this.#locationQuery = searchParameter;
-    this.#fetchData().then((data) => {
-      // clear a successful search query.
-      searchField.value = "";
-      this.#apiData = data;
-      this.#displayData();
-    }).catch((error) => {
-      console.log(error);
-      component.tooltip(searchField.parentNode,
-          "Invalid search. Check help for formatting assistance.", 3);
-    });
+    this.#updateDisplay(true);
   }
 
   /**
@@ -189,11 +176,10 @@ export default class WeatherWidget {
    */
   #initSearch() {
     const searchBarForm = component.geosearch();
-    // TODO debug remove later?
     searchBarForm.querySelector(".location").addEventListener("click",
         (e) => this.#askForLocation.call(this, e));
-    
-    // insert a help icon to inform on the format.
+
+        // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
     helpButton.append(component.faIcon("fas", "fa-question-circle"));
     helpButton.setAttribute("type", "button");
@@ -218,13 +204,42 @@ export default class WeatherWidget {
     component.tooltip(parent, acceptableFormats, 0);
   }
 
+  /**
+   * Initializes a reload button, adding it to the view and adding appropriate handlers.
+   */
   #initReloadButton() {
+    const self = this;
     const reloadButton = component.button("", "reload");
     const reloadIcon = component.faIcon("fas", "fa-redo-alt");
 
     reloadButton.append(reloadIcon);
 
+    reloadButton.addEventListener("click", () => {
+      this.#updateDisplay.call(self);
+    });
+
     return reloadButton;
+  }
+
+  /**
+   * Update the display by fetching data and then displaying it.
+   * @param {boolean} onSearch - Set to true if you're updating the view from search bar.
+   */
+  #updateDisplay(onSearch=false) {
+    this.#fetchData()
+      .then((data) => {
+        if (onSearch) {
+          document.querySelector(".search-field").value = "";
+        }
+        this.#apiData = data;
+        this.#displayData();
+      }).catch((error) => {
+        console.log(error);
+        if (onSearch) {
+            component.tooltip(document.querySelector(".search-field").parentNode,
+                "Invalid search. Check help for formatting assistance.", 3);
+        }
+    });
   }
 
   #initOptionsDisplay(viewMode) {
