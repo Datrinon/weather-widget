@@ -345,6 +345,26 @@ export default class WeatherWidget {
   }
 
   /**
+   * Calculate the cardinal direction of the wind based on given degrees.
+   * @param {number} degrees - The degrees of the wind direction.
+   * @returns {string} - String direction.
+   */
+  #calculateWindDirection(degrees) {
+    const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
+    degrees += 22.5;
+    degrees /= 2;
+
+    if (degrees < 0) {
+      degrees = 360 - Math.abs(degrees) % 360;
+    } else {
+      degrees = degrees % 360;
+    }
+
+    let index = parseInt(degrees / 45);
+    return `${directions[index]}`;
+  }
+
+  /**
    * For displaying the current day's data.
    * This will create elements, and then populate them with data fetched from
    * OpenWeather.
@@ -362,6 +382,13 @@ export default class WeatherWidget {
     minMax.append(min, max);
     this.#dataDisplayContainer.append(minMax);
 
+    const wind = component.div("wind");
+    const windLabel = component.p("Wind: ");
+    const windSpeed = component.span("--", "wind-speed");
+    const windDirection = component.span("--", "wind-dir");
+    wind.append(windLabel, windSpeed, windDirection);
+    this.#dataDisplayContainer.append(wind);
+
     const condition = component.p("Condition here.", "weather-description");
     this.#dataDisplayContainer.append(condition);
 
@@ -371,6 +398,9 @@ export default class WeatherWidget {
     temperature.textContent = Math.round(this.#apiData.weatherData.current.temp);
     min.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.min);
     max.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.max);
+    windSpeed.textContent = Math.round(this.#apiData.weatherData.current.wind_speed);
+    windDirection.textContent =
+      this.#calculateWindDirection(this.#apiData.weatherData.current.wind_deg);
     condition.textContent = Utility.toSentence(this.#apiData.weatherData.daily[0].weather[0].description);
   }
 
