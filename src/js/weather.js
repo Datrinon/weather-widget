@@ -110,14 +110,24 @@ export default class WeatherWidget {
     searchQuery = searchQuery.trim(); 
     
     // If there are numbers in the query, infer that it is a US zip code.
-    if (searchQuery.match(/[0-9]/g) &&
-        searchQuery.match(/[0-9]/g).length === 5) {
+    if (searchQuery.match(/[0-9]/g)
+        && searchQuery.match(/[0-9]/g).length === 5
+    ) {
       searchParameter = "&zip=" + searchQuery;
     // else check for lat long
-    } else if (searchQuery.match(/[0-9]\./g) &&
-      searchQuery.match(/[0-9]\./g).length === 2) {
+    } else if (searchQuery.match(/[0-9]\./g)
+      && searchQuery.match(/[0-9]\./g).length === 2
+    ) {
       searchQuery = searchQuery.split(",");
       searchParameter = `&lat=${searchQuery[0]}&lon=${searchQuery[1]}`;
+    // else check for a state abbreviation provided as the second argument.
+    } else if (searchQuery.includes(",")
+      && searchQuery.split(",")[1] !== null
+      && searchQuery.split(",").length == 2
+    ) {
+      // in this case, we append us to the end
+      searchQuery += ",US";
+      searchParameter = `&q=${searchQuery}`;
     } else {
       // else just throw it to q to query for.
       searchParameter = `&q=${searchQuery}`;
@@ -143,6 +153,7 @@ export default class WeatherWidget {
    */
   #getLocation(e) {
     let self = this;
+    let button = e.currentTarget;
     function success(position) {
       const latitude  = position.coords.latitude;
       const longitude = position.coords.longitude;
@@ -156,7 +167,7 @@ export default class WeatherWidget {
     }
   
     function error() {
-      const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
+      const parent = Utility.getMatchingParent(button, ".search-container");
       component.tooltip(parent,
           "Please allow location permissions to use your location on the widget.", 3);
       }
@@ -191,9 +202,9 @@ export default class WeatherWidget {
 
   #showSearchTips(e) {
     const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
-    const acceptableFormats = `• U.S. Zip Code
-    • City Name
-    • City Name, Country
+    const acceptableFormats = `• (U.S.) Zip Code
+    • (U.S.) City Name, State Abbrev.
+    • (Intl.) City Name, Country
     • Latitude, Longitude`;
     component.tooltip(parent, acceptableFormats, 0);
   }
@@ -368,12 +379,12 @@ export default class WeatherWidget {
    * @param {n} - The number of days to fetch data for.
    */
   #renderNDaysDataDisplay(n) {
+    const daysContainer = component.div("days");
+
     const city = component.p("City", "display-city");
     const country = component.p("Country", "display-town");
     city.textContent = this.#apiData.location.city;
     country.textContent = this.#apiData.location.country;
-
-    this.#dataDisplayContainer.append(city, country);
 
     const today = new Date();
 
@@ -395,8 +406,9 @@ export default class WeatherWidget {
       minMax.append(min, max);
       dayContainer.append(dayLabel, weatherIcon, dayTemp, minMax);
 
-      this.#dataDisplayContainer.append(dayContainer);
+      daysContainer.append(dayContainer);
     }
+    this.#dataDisplayContainer.append(city, country, daysContainer);
   }
 
   #initFooter() {

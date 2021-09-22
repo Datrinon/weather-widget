@@ -452,7 +452,7 @@ class Component {
    * @param {string} placeholder - Advice to give in search field.
    * @returns 
    */
-  search(placeholder){
+  search(placeholder="Search"){
     const searchContainer = Utility.createElement("form", "search-container");
     const searchField = Utility.createElement("input", "search-field");
     const searchIcon = this.faIcon("fas", "fa-search");
@@ -497,7 +497,7 @@ class Component {
   tooltip(elem, msg, s){
     const tooltipContainer = component.div("tooltip");
     for (let msgSegment of msg.split("\n")) {
-      const tooltipMsg = component.p(msgSegment, "tooltip-msg");
+      const tooltipMsg = component.p(msgSegment.trim(), "tooltip-msg");
       tooltipContainer.append(tooltipMsg);
     }
 

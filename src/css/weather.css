@@ -41,7 +41,7 @@
   width: 64px;
 }
 
-.multiday {
+.multiday .days {
   display: flex;
   flex-direction: row;
 }

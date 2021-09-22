@@ -86,6 +86,7 @@ export default class Utility {
    * @returns {string} The latitude and longitude of the user's location, or null
    * if the user denies permission requests.
    */
+  /*
   static getGeolocation() {
 
     function success(position) {
@@ -106,6 +107,7 @@ export default class Utility {
       navigator.geolocation.getCurrentPosition(success, error);
     });
   }
+  */
 
   /**
    * Remove all children from a parent node.
