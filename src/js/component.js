@@ -7,7 +7,7 @@ import Utility from "./utility";
  */
 
 class Component {
-  
+
 
   constructor() {
     this.mql = window.matchMedia("(max-width: 600px)");
@@ -452,7 +452,7 @@ class Component {
    * @param {string} placeholder - Advice to give in search field.
    * @returns 
    */
-  search(placeholder="Search"){
+  search(placeholder = "Search") {
     const searchContainer = Utility.createElement("form", "search-container");
     const searchField = Utility.createElement("input", "search-field");
     const searchIcon = this.faIcon("fas", "fa-search");
@@ -462,7 +462,7 @@ class Component {
     searchField.type = "search";
     searchField.setAttribute("placeholder", placeholder);
     searchField.setAttribute("required", true);
-    searchButton.append(searchIcon); 
+    searchButton.append(searchIcon);
     searchButton.setAttribute("type", "submit");
 
     searchContainer.append(searchField, searchButton);
@@ -473,7 +473,7 @@ class Component {
    * Create a search field for locations, so it includes a search field with 
    * a location button.
    */
-  geosearch(){
+  geosearch() {
     const searchElem = this.search("");
     const locationButton = this.button("", "location");
     const locationIcon = this.faIcon("fas", "fa-map-marker-alt")
@@ -494,7 +494,7 @@ class Component {
    * @param {number} (s) - Number of seconds to persist message. 0 for persistent
    * until user clicks outside of the tooltip.
    */
-  tooltip(elem, msg, s){
+  tooltip(elem, msg, s) {
     const tooltipContainer = component.div("tooltip");
     for (let msgSegment of msg.split("\n")) {
       const tooltipMsg = component.p(msgSegment.trim(), "tooltip-msg");
@@ -514,7 +514,7 @@ class Component {
             console.log("User clicked; removing tooltip");
             tooltipContainer.remove();
           }
-        }, {once : true});
+        }, { once: true });
 
         return resolve(null);
       }, 0);
@@ -530,6 +530,49 @@ class Component {
         }, s * 1000);
       }
     });
+  }
+
+  /**
+   * Attach a loading message to a given element.
+   * @param {HTMLElement} parentElem - Element to attach loading message to.
+   * @param {string} msg - Message to play; default is "loading".
+   * @returns 
+   */
+  loadingMessage(parentElem, msg="Loading") {
+    const loadingBase = component.p(msg, "loading-text");
+    const loadingDots = component.span("");
+
+    loadingBase.append(loadingDots);
+    parentElem.append(loadingBase);
+
+    const loadingAnimation = {
+      id: 0,
+      loadingTextBase: parentElem.querySelector(".loading-text"),
+      loadingTextDots: parentElem.querySelector(".loading-text span"),
+      /**
+       * Sets an interval, using it to play a simple animation.
+       */
+      play() {
+        this.loadingTextBase.textContent = msg;
+        this.loadingTextBase.classList.remove("no-opacity");
+        this.loadingTextDots.textContent = "";
+
+        this.id = setInterval(() => {
+          if (this.loadingTextDots.textContent !== "...") {
+            this.loadingTextDots.textContent += ".";
+          } else {
+            this.loadingTextDots.textContent = "";
+          }
+        }, 750);
+      },
+      stop() {
+        clearInterval(this.id);
+        this.loadingTextBase.classList.add("no-opacity");
+        parentElem.removeChild(loadingBase);
+      }
+    };
+
+    return loadingAnimation;
   }
 }
 

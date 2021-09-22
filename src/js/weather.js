@@ -98,8 +98,8 @@ export default class WeatherWidget {
     this.#initSearch();
     this.#initOptionsDisplay(viewMode);
     this.#widgetContainer.append(this.#dataDisplayContainer);
-    this.#updateDisplay();
     this.#initFooter();
+    this.#updateDisplay();
 
     window.onbeforeunload = () => {
       this.saveLocationToStorage.call(this);
@@ -162,10 +162,7 @@ export default class WeatherWidget {
 
       let searchParameter = `&lat=${latitude}&lon=${longitude}`;
       self.#locationQuery = searchParameter;
-      self.#fetchData().then((data) => {
-        self.#apiData = data;
-        self.#displayData();
-      })
+      self.#updateDisplay();
     }
   
     function error() {
@@ -185,7 +182,7 @@ export default class WeatherWidget {
     searchBarForm.querySelector(".location").addEventListener("click",
         (e) => this.#askForLocation.call(this, e));
 
-        // insert a help icon to inform on the format.
+    // insert a help icon to inform on the format.
     const helpButton = component.button("", "help");
     helpButton.append(component.faIcon("fas", "fa-question-circle"));
     helpButton.setAttribute("type", "button");
@@ -232,16 +229,24 @@ export default class WeatherWidget {
    * @param {boolean} onSearch - Set to true if you're updating the view from search bar.
    */
   #updateDisplay(onSearch=false) {
+    const loadingMessage = component.loadingMessage(
+      this.widget.querySelector(".widget-footer"),
+      "Updating");
+    
+    loadingMessage.play();
+
     this.#fetchData()
       .then((data) => {
+        loadingMessage.stop();
         this.#lastValidLocationQuery = this.#locationQuery;
         if (onSearch) {
           // guaranteed to always be valid.
           document.querySelector(".search-field").value = "";
         }
         this.#apiData = data;
-        this.#displayData();
+        this.#renderDisplayData();
       }).catch((error) => {
+        loadingMessage.stop();
         console.log(error);
         if (onSearch) {
             component.tooltip(document.querySelector(".search-field").parentNode,
@@ -268,7 +273,7 @@ export default class WeatherWidget {
       .forEach(button => button.addEventListener("click",
           (e) => {
             self.#toggleSelected(e, ".display-day-view");
-            self.#displayData();
+            self.#renderDisplayData();
           }));
     dayViewPanel.children[viewMode].classList.add("selected");
     dayViewPanel.children[viewMode].setAttribute("disabled", "true");
@@ -355,7 +360,7 @@ export default class WeatherWidget {
    * Shows a data display based on the button that was selected. To be called
    * each time a button is selected on the .display-day-view node.
    */
-  #displayData() {
+  #renderDisplayData() {
     const dayViewButtons = this.#widgetContainer.querySelector(".display-day-view");
     const selected = dayViewButtons.querySelector(".selected");
     const selectedIndex = Array.from(dayViewButtons.children).indexOf(selected);
