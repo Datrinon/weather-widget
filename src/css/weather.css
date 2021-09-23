@@ -1,7 +1,19 @@
 :root {
-  --overcast-bg: linear-gradient(217deg, rgba(157, 166, 179, 0.801), rgba(255,0,0,0) 70.71%),
-  linear-gradient(127deg, rgba(121, 121, 121, 0.8), rgba(0,255,0,0) 70.71%),
-  linear-gradient(336deg, rgba(30,30,40,.8), rgba(0,0,255,0) 70.71%);
+  --overcast-bg: linear-gradient(217deg, rgba(157, 166, 179, 1), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgba(121, 121, 121, 1), rgba(165, 165, 165, 0.39) 70.71%),
+  linear-gradient(336deg, rgba(30,30,40,.95), rgba(0,0,255,0) 70.71%);
+  --sunny-bg: linear-gradient(217deg, rgb(50 130 244), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgb(184 231 245), rgb(115 136 163 / 71%) 70.71%),
+  linear-gradient(336deg, rgb(25 57 216 / 95%), rgba(0,0,255,0) 70.71%);
+  --sunrise-sunset-bg: linear-gradient(217deg, rgb(41 47 120), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgb(242 115 55), rgb(243 219 152 / 71%) 70.71%),
+  linear-gradient(336deg, rgb(172 98 75 / 95%), rgb(118 21 21 / 0%) 70.71%);
+  --night-bg: linear-gradient(217deg, rgb(35 31 110), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgb(13 25 59), rgb(34 28 13 / 71%) 70.71%),
+  linear-gradient(336deg, rgb(0 0 0 / 95%), rgb(118 21 21 / 0%) 70.71%);
+  --night-overcast-bg: linear-gradient(217deg, rgb(101 101 101), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgb(55 50 42 / 96%), rgb(22 21 24 / 71%) 70.71%),
+  linear-gradient(336deg, rgb(3 3 3 / 95%), rgb(118 21 21 / 0%) 70.71%);
 }
 
 .no-opacity {
@@ -35,7 +47,7 @@
   border-radius: 5px 5px 1px 5px;
   background: var(--overcast-bg);
   color: white;
-  text-shadow: 1px 1px 3px hsl(0, 0%, 60%);
+  text-shadow: 1px 1px 3px hsl(0, 0%, 20%);
   max-height: 300px;
 }
 
@@ -69,7 +81,7 @@
   padding: 3px 5px 10px 5px;
   border-radius: 5px;
   line-height: 1.25;
-  background: linear-gradient(rgba(255,255,255,1), rgba(175,175,175, 0.6));
+  background: linear-gradient(rgb(94, 93, 93), rgba(175,175,175, 0.9));
   animation: fade-in-top 0.7s;
 }
 
@@ -140,7 +152,7 @@
 }
 
 .min-temp {
-  color: rgba(0,0,0, 0.5);
+  color: rgba(255,255,255, 0.55);
 }
 
 /* General CSS End */

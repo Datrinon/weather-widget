@@ -255,13 +255,15 @@ export default class WeatherWidget {
           document.querySelector(".search-field").value = "";
         }
         this.#apiData = data;
+        console.log(data);
+        this.#determineBGColor();
         this.#renderDisplayData();
       }).catch((error) => {
         loadingMessage.stop();
         console.log(error);
         if (onSearch) {
             component.tooltip(document.querySelector(".search-field").parentNode,
-                "Invalid search. Check help for formatting assistance.", 3);
+                "Location was not found. Please ensure formatting is followed.", 3);
             console.log("resetting to previous location query...");
             this.#locationQuery = this.#lastValidLocationQuery;
         }
@@ -363,8 +365,23 @@ export default class WeatherWidget {
     let weatherResponse = await fetch(this.#weatherApiBase + coords + units + queryString);
     let weatherData = await weatherResponse.json();
 
+    let time = new Date();
+    time = time.getUTCHours();
+    time = time + (weatherData.timezone_offset / 3600);
+
     // 3. Return them together.
-    return {weatherData, location};
+    return {weatherData, location, time};
+  }
+
+  /**
+   * Called after the API fetches data, determines the bg color given the time and condition.
+   */
+  #determineBGColor() {
+    // 20 - 6 apply night bg
+    // -> if not clear, apply night-overcast-bg
+    // 6 - 7 or 18 - 20 apply sunrise-sunset
+    // 7 - 20 apply sunny bg
+    // -> if not clear, apply overcast-bg
   }
 
   /**

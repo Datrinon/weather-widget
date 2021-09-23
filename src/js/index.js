@@ -1,5 +1,6 @@
 //css
 import '../css/reset.css';
+import '../css/index.css';
 import '../css/weather.css';
 //js
 import WeatherWidget from './weather';
