@@ -226,6 +226,7 @@ export default class WeatherWidget {
     const reloadIcon = component.faIcon("fas", "fa-redo-alt");
 
     reloadButton.append(reloadIcon);
+    reloadButton.setAttribute("title", "Update");
 
     reloadButton.addEventListener("click", () => {
       this.#updateDisplay.call(self);
@@ -420,30 +421,34 @@ export default class WeatherWidget {
    */
   #render1DayDataDisplay() {
     const city = component.p("City", "display-city");
-    const country = component.p("Country", "display-town");
+    const country = component.p("Country", "display-country");
+    const weatherContainer = component.div("weather-data");
     const weatherIcon = component.img("", "weather-icon");
     const temperature = component.p("--", "current-temp", "temperature");
-    this.#dataDisplayContainer.append(city, country, weatherIcon, temperature);
+    this.#dataDisplayContainer.append(city, country);
+    weatherContainer.append(weatherIcon, temperature);
 
     const minMax = component.div("min-max-temp");
     const min = component.p("--", "min-temp", "temperature");
     const max = component.p("--", "max-temp", "temperature");
     minMax.append(min, max);
-    this.#dataDisplayContainer.append(minMax);
+    weatherContainer.append(minMax);
 
     const wind = component.div("wind");
-    const windLabel = component.p("Wind: ");
+    const windLabel = component.p("Wind: ", "wind-label");
     const windSpeed = component.span("--", "wind-speed");
     const windDirection = component.span("--", "wind-dir");
     wind.append(windLabel, windSpeed, windDirection);
-    this.#dataDisplayContainer.append(wind);
+    weatherContainer.append(wind);
 
     const condition = component.p("Condition here.", "weather-description");
-    this.#dataDisplayContainer.append(condition);
+    weatherContainer.append(condition);
+
+    this.#dataDisplayContainer.append(weatherContainer);
 
     city.textContent = this.#apiData.location.city;
     country.textContent = this.#apiData.location.country;
-    weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.current.weather[0].icon}@2x.png`;
+    weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.current.weather[0].icon}@4x.png`;
     temperature.textContent = Math.round(this.#apiData.weatherData.current.temp);
     min.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.min);
     max.textContent = Math.round(this.#apiData.weatherData.daily[0].temp.max);
@@ -461,7 +466,7 @@ export default class WeatherWidget {
     const daysContainer = component.div("days");
 
     const city = component.p("City", "display-city");
-    const country = component.p("Country", "display-town");
+    const country = component.p("Country", "display-country");
     city.textContent = this.#apiData.location.city;
     country.textContent = this.#apiData.location.country;
 
