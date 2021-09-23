@@ -475,14 +475,14 @@ export default class WeatherWidget {
     for (let i = 0; i < n; i++) {
       const dayContainer = component.div("day");
       const dayLabel = component.p("", "day-of-week");
-      const weatherIcon = component.img(null);
+      const weatherIcon = component.img(null, "icon");
       const dayTemp = component.p("--", "day-temp", "temperature");
       const minMax = component.div("min-max-temp");
       const min = component.p("--", "min-temp", "temperature");
       const max = component.p("--", "max-temp", "temperature");
       
       dayLabel.textContent = format(addDays(today, i), "eee");
-      weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.daily[i].weather[0].icon}@2x.png`;
+      weatherIcon.src = `http://openweathermap.org/img/wn/${this.#apiData.weatherData.daily[i].weather[0].icon}@4x.png`;
       dayTemp.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.day);
       min.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.min);
       max.textContent = Math.round(this.#apiData.weatherData.daily[i].temp.max);

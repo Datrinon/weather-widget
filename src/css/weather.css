@@ -1,6 +1,6 @@
 :root {
-  --overcast-bg: linear-gradient(217deg, rgba(196, 208, 224, 0.801), rgba(255,0,0,0) 70.71%),
-  linear-gradient(127deg, rgba(180,180,180,.8), rgba(0,255,0,0) 70.71%),
+  --overcast-bg: linear-gradient(217deg, rgba(157, 166, 179, 0.801), rgba(255,0,0,0) 70.71%),
+  linear-gradient(127deg, rgba(121, 121, 121, 0.8), rgba(0,255,0,0) 70.71%),
   linear-gradient(336deg, rgba(30,30,40,.8), rgba(0,0,255,0) 70.71%);
 }
 
@@ -24,6 +24,8 @@
   padding: 5px;
   border-radius: 5px 5px 1px 5px;
   background: var(--overcast-bg);
+  color: white;
+  text-shadow: 1px ​1px 3px rgb(0 0 0 / 30%);
 }
 
 .search-container, .search-container > div {
@@ -121,9 +123,17 @@
   min-height: 200px;
 }
 
+.data-view .icon {
+  filter: brightness(1.25) contrast(1.25) hue-rotate(25deg) saturate(4.0);
+}
+
+.min-temp {
+  color: rgba(0,0,0, 0.5);
+}
+
 /* General CSS End */
 
-/* One Day View CSS */
+/* One Day View CSS Begin */
 .display-city {
   font-size: 150%;
   font-weight: 600;
@@ -146,7 +156,7 @@
   grid-template-columns: 128px 1fr;
   grid-template-rows: 64px 64px 1fr 1fr;
   width: 50%;
-  max-width: 200px;
+  max-width: 225px;
   margin: 0 auto;
   text-align: center;
 }
@@ -181,9 +191,7 @@
   display: inline-block;
 }
 
-.data-view.today .min-temp {
-  color: rgba(0,0,0, 0.5);
-}
+
 
 .data-view.today .wind {
   grid-area: wind;
@@ -204,3 +212,95 @@
   font-style: italic;
 }
 
+/* One Day View CSS End */
+
+/* 3 Day View CSS Begin */
+.three-day .days {
+  justify-content: space-around;
+}
+
+.three-day .days .day-of-week {
+  text-align: center;
+  font-weight: 600;
+  font-size: 115%;
+  border-bottom: 2px dotted rgba(255,255,255,0.4);
+  padding-bottom: 5px;
+  margin: 0 25px;
+}
+
+.three-day .days .icon {
+  width: 60%;
+  margin: 0 auto;
+  display: block;
+  transform: scale(1.35);
+}
+
+.three-day .days .day-temp {
+  font-size: 125%;
+  font-weight: 600;
+  display: block;
+  margin: 0 auto;
+  width: 16%;
+  text-align: center;
+}
+
+.three-day .days .min-max-temp {
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.three-day .days .min-max-temp p {
+  margin: 10px 5px;
+}
+
+/* 3 Day View CSS End */
+
+
+/* Weekly View CSS Begin */
+.weekly .days {
+  margin: 10px 0;
+}
+
+.weekly .days .icon {
+  width: 85%;
+  margin: 0 auto;
+  display: block;
+}
+
+.weekly .days .day {
+  border: 1px solid hsla(0, 0%, 50%, 100%);
+  border-right: 0px;
+  padding: 10px 0;
+}
+
+.weekly .days {
+  /* justify-content: space-around; */
+  margin: 10px 0;
+}
+
+p.day-of-week {
+  text-align: center;
+  /* font-weight: 400; */
+}
+
+p.day-temp.temperature {
+  text-align: center;
+  font-size: 125%;
+}
+
+.weekly .days .min-max-temp {
+  margin-top: 5px;
+}
+
+.weekly .days:nth-last-child(1) {
+  border-right: 1px solid hsla(0, 0%, 50%, 100%);
+}
+
+.min-max-temp p {
+  width: 50%;
+  text-align: center;
+  font-size: 90%;
+}
+
+
+/* Weekly View CSS End */
