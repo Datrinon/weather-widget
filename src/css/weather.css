@@ -8,8 +8,18 @@
   opacity: 0;
 }
 
+.reload {
+  position: relative;
+  font-family: inherit;
+}
+
 .loading-text {
   position: absolute;
+  right: 150%;
+  top: 0;
+  font-family: inherit;
+  color: white;
+  text-align: left;
 }
 
 /* General CSS Begin */
@@ -25,7 +35,8 @@
   border-radius: 5px 5px 1px 5px;
   background: var(--overcast-bg);
   color: white;
-  text-shadow: 1px ​1px 3px rgb(0 0 0 / 30%);
+  text-shadow: 1px 1px 3px hsl(0, 0%, 60%);
+  max-height: 300px;
 }
 
 .search-container, .search-container > div {
@@ -80,7 +91,7 @@
 .widget-footer {
   display: flex;
   justify-content: space-between;
-  align-items: end;
+  align-items: baseline;
   position: relative;
   font-size: 75%;
 }
@@ -97,12 +108,13 @@
 .display-options button {
   all: unset;
   margin: 2px 5px;
-  transition: background-color 0.5s border 0.5s;
+  transition: text-shadow 0.5s border 0.5s;
+  padding-bottom: 1px;
 }
 
 .display-options button.selected {
-  background-color: rgba(100,100,100,0.5);
-  border: 1px solid blue;
+  border-bottom: 3px solid hsl(180, 50%, 75%);
+  text-shadow: 1px 1px 5px rgba(255,255,255, 0.8);
 }
 
 .temperature:after{
@@ -154,8 +166,7 @@
   "wind wind"
   "desc desc";
   grid-template-columns: 128px 1fr;
-  grid-template-rows: 64px 64px 1fr 1fr;
-  width: 50%;
+  grid-template-rows: 48px 48px 1fr 1fr;
   max-width: 225px;
   margin: 0 auto;
   text-align: center;
@@ -163,7 +174,7 @@
 
 .data-view.today .weather-icon {
   grid-area: icon;
-  width: 128px;
+  width: 90px;
   transform: scale(1.25);
   justify-self: center;
 }
@@ -229,7 +240,7 @@
 }
 
 .three-day .days .icon {
-  width: 60%;
+  width: 40%;
   margin: 0 auto;
   display: block;
   transform: scale(1.35);
@@ -240,7 +251,7 @@
   font-weight: 600;
   display: block;
   margin: 0 auto;
-  width: 16%;
+  width: 25%;
   text-align: center;
 }
 
@@ -278,12 +289,12 @@
   margin: 10px 0;
 }
 
-p.day-of-week {
+.weekly p.day-of-week {
   text-align: center;
   /* font-weight: 400; */
 }
 
-p.day-temp.temperature {
+.weekly p.day-temp.temperature {
   text-align: center;
   font-size: 125%;
 }
@@ -296,11 +307,12 @@ p.day-temp.temperature {
   border-right: 1px solid hsla(0, 0%, 50%, 100%);
 }
 
-.min-max-temp p {
+.weekly .min-max-temp p {
   width: 50%;
   text-align: center;
   font-size: 90%;
 }
+
 
 
 /* Weekly View CSS End */

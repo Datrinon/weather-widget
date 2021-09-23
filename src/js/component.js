@@ -548,7 +548,7 @@ class Component {
    */
   loadingMessage(parentElem, msg="Loading") {
     const loadingBase = component.p(msg, "loading-text");
-    const loadingDots = component.span("");
+    const loadingDots = Utility.createElement("span", "loading-dots");
 
     loadingBase.append(loadingDots);
     parentElem.append(loadingBase);
@@ -556,7 +556,7 @@ class Component {
     const loadingAnimation = {
       id: 0,
       loadingTextBase: parentElem.querySelector(".loading-text"),
-      loadingTextDots: parentElem.querySelector(".loading-text span"),
+      loadingTextDots: parentElem.querySelector(".loading-dots"),
       /**
        * Sets an interval, using it to play a simple animation.
        */

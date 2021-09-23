@@ -241,7 +241,7 @@ export default class WeatherWidget {
    */
   #updateDisplay(onSearch=false) {
     const loadingMessage = component.loadingMessage(
-      this.widget.querySelector(".widget-footer"),
+      this.widget.querySelector(".reload"),
       "Updating");
     
     loadingMessage.play();
