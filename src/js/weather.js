@@ -204,13 +204,14 @@ export default class WeatherWidget {
    * @param {Event} e - event the callback is assigned. to. 
    */
   #showSearchTips(e) {
-    const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
+    const parent = Utility.getMatchingParent(e.currentTarget, ".search-field-wrapper");
     if (!parent.querySelector(".tooltip")) {
-      const acceptableFormats = `• (U.S.) Zip Code
+      const acceptableFormats = `Acceptable formats:
+      • (U.S.) Zip Code
       • (U.S.) City Name, State Abbrev.
       • (Intl.) City Name, Country
       • Latitude, Longitude`;
-      component.tooltip(parent, acceptableFormats, 0);
+      component.tooltip(parent, acceptableFormats, 0, false);
     }
   }
 

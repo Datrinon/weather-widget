@@ -454,18 +454,21 @@ class Component {
    */
   search(placeholder = "Search") {
     const searchContainer = Utility.createElement("form", "search-container");
+    const searchFieldWrapper = this.div("search-field-wrapper");
     const searchField = Utility.createElement("input", "search-field");
     const searchIcon = this.faIcon("fas", "fa-search");
     const searchButton = this.button("", "search");
 
     searchContainer.setAttribute("action", "");
+    searchFieldWrapper.style.display = "inline-block";
     searchField.type = "search";
     searchField.setAttribute("placeholder", placeholder);
     searchField.setAttribute("required", true);
     searchButton.append(searchIcon);
     searchButton.setAttribute("type", "submit");
 
-    searchContainer.append(searchField, searchButton);
+    searchFieldWrapper.append(searchField);
+    searchContainer.append(searchFieldWrapper, searchButton);
     return searchContainer;
   }
 
@@ -493,8 +496,10 @@ class Component {
    * @param {string} (msg) - Message to display.
    * @param {number} (s) - Number of seconds to persist message. 0 for persistent
    * until user clicks outside of the tooltip.
+   * @param {boolean} dismissOnExternalClick - Should the tooltip be dismissed by
+   * clicking outside of the element? True by default.
    */
-  tooltip(elem, msg, s) {
+  tooltip(elem, msg, s, dismissOnExternalClick = true) {
     const tooltipContainer = component.div("tooltip");
     for (let msgSegment of msg.split("\n")) {
       const tooltipMsg = component.p(msgSegment.trim(), "tooltip-msg");
@@ -507,16 +512,19 @@ class Component {
 
     elem.append(tooltipContainer);
 
-    const p = new Promise((resolve) => {
-      setTimeout(() => {
-        window.addEventListener("click", (e) => {
-          if (e.currentTarget !== tooltipContainer) {
-            console.log("User clicked; removing tooltip");
-            tooltipContainer.remove();
-          }
-        }, { once: true });
 
-        return resolve(null);
+    const p = new Promise((resolve) => {
+        
+      setTimeout(() => {
+        if (dismissOnExternalClick) {
+          window.addEventListener("click", (e) => {
+            if (e.currentTarget !== tooltipContainer) {
+              console.log("User clicked; removing tooltip");
+              tooltipContainer.remove();
+            }
+          }, { once: true });
+          return resolve(null);
+        }
       }, 0);
     })
 
