@@ -178,16 +178,16 @@ export default class WeatherWidget {
    * Initializes the search bar by creating the element and adding the appropriate handlers.
    */
   #initSearch() {
-    const searchBarForm = component.geosearch();
+    const searchBarForm = component.geosearch("Search a place...");
     searchBarForm.querySelector(".location").addEventListener("click",
         (e) => this.#askForLocation.call(this, e));
 
-    // insert a help icon to inform on the format.
-    const helpButton = component.button("", "help");
-    helpButton.append(component.faIcon("fas", "fa-question-circle"));
-    helpButton.setAttribute("type", "button");
-    helpButton.addEventListener("click", (e) => this.#showSearchTips.call(this, e));
-    searchBarForm.querySelector(".location").insertAdjacentElement("beforebegin", helpButton);
+    // Display search assistance when field is active.
+    searchBarForm.querySelector(".search-field")
+      .addEventListener("focus", (e) => this.#showSearchTips.call(this, e));
+    searchBarForm.querySelector(".search-field")
+      .addEventListener("focusout",
+          (e) => e.currentTarget.parentNode.querySelector(".tooltip").remove());
 
     searchBarForm.addEventListener("submit", (e) => {
       // use submit event to catch empty queries.
@@ -198,13 +198,20 @@ export default class WeatherWidget {
     this.#widgetContainer.append(searchBarForm);
   }
 
+  /**
+   * Only show search tips when the user focuses on the input. And don't create
+   * another if one is already present.
+   * @param {Event} e - event the callback is assigned. to. 
+   */
   #showSearchTips(e) {
     const parent = Utility.getMatchingParent(e.currentTarget, ".search-container");
-    const acceptableFormats = `• (U.S.) Zip Code
-    • (U.S.) City Name, State Abbrev.
-    • (Intl.) City Name, Country
-    • Latitude, Longitude`;
-    component.tooltip(parent, acceptableFormats, 0);
+    if (!parent.querySelector(".tooltip")) {
+      const acceptableFormats = `• (U.S.) Zip Code
+      • (U.S.) City Name, State Abbrev.
+      • (Intl.) City Name, Country
+      • Latitude, Longitude`;
+      component.tooltip(parent, acceptableFormats, 0);
+    }
   }
 
   /**

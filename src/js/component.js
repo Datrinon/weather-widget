@@ -473,8 +473,8 @@ class Component {
    * Create a search field for locations, so it includes a search field with 
    * a location button.
    */
-  geosearch() {
-    const searchElem = this.search("");
+  geosearch(placeholder="") {
+    const searchElem = this.search(placeholder);
     const locationButton = this.button("", "location");
     const locationIcon = this.faIcon("fas", "fa-map-marker-alt")
 
