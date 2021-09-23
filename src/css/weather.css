@@ -31,6 +31,32 @@
   justify-content: space-between;
 }
 
+.search-field-wrapper .tooltip {
+  font-size: 75%;
+  border: 1px solid black;
+  margin: 2px 0;
+  padding: 3px 5px 10px 5px;
+  border-radius: 5px;
+  line-height: 1.25;
+  background: linear-gradient(rgba(255,255,255,1), rgba(175,175,175, 0.2));
+  animation: fade-in-top 0.7s;
+}
+
+@keyframes fade-in-top {
+  0% {
+    opacity: 0.3;
+    transform: translateY(-20%);
+  }
+  100% {
+    opacity: 1;
+    /* transform: translateY(0); */
+  }
+}
+
+.search-field.wrapper .tooltip:nth-child(1) {
+  
+}
+
 .widget-footer {
   display: flex;
   justify-content: space-between;

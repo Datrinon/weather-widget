@@ -179,10 +179,12 @@ export default class WeatherWidget {
    */
   #initSearch() {
     const searchBarForm = component.geosearch("Search a place...");
+    searchBarForm.querySelector(".location").setAttribute("title", "Use My Location");
     searchBarForm.querySelector(".location").addEventListener("click",
         (e) => this.#askForLocation.call(this, e));
 
     // Display search assistance when field is active.
+    searchBarForm.querySelector(".search").setAttribute("title", "Search Place");
     searchBarForm.querySelector(".search-field")
       .addEventListener("focus", (e) => this.#showSearchTips.call(this, e));
     searchBarForm.querySelector(".search-field")
