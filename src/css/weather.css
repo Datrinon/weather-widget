@@ -71,6 +71,34 @@
   }
 }
 
+.appear-from-bottom {
+  animation: appear-from-bottom 0.4s ease-out;
+}
+
+.disappear {
+  animation: disappear 0.4s ease-out;
+}
+
+@keyframes disappear {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes appear-from-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(25px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .weather-widget:hover::before {
   opacity: 1;
 }
@@ -83,7 +111,6 @@
 }
 
 .search-container input, .search-container button {
-  height: 100%;
   font-family: inherit;
   background-color: rgba(255, 255, 255, 0.75);
   border: 1px solid white;

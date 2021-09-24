@@ -435,28 +435,57 @@ export default class WeatherWidget {
    * each time a button is selected on the .display-day-view node.
    */
   #renderDisplayData() {
+    const self = this;
     const dayViewButtons = this.#widgetContainer.querySelector(".display-day-view");
     const selected = dayViewButtons.querySelector(".selected");
     const selectedIndex = Array.from(dayViewButtons.children).indexOf(selected);
 
+    this.#dataDisplayContainer.classList.remove("appear-from-bottom");
+    this.#dataDisplayContainer.classList.add("disappear");
 
+    this.#dataDisplayContainer.addEventListener("animationend", () => {
+      self.#dataDisplayContainer.classList.remove("disappear");
+      self.#dataDisplayContainer.style.opacity = 0;
+      Utility.removeAllChildren(self.#dataDisplayContainer);
 
-    Utility.removeAllChildren(this.#dataDisplayContainer);
+      switch(selectedIndex) {
+        case 0:
+          self.#dataDisplayContainer.className = "data-view today";
+          self.#render1DayDataDisplay();
+          break;
+          case 1:
+          self.#dataDisplayContainer.className = "data-view three-day multiday";
+          self.#renderNDaysDataDisplay(3);
+          break;
+        case 2:
+          self.#dataDisplayContainer.className = "data-view weekly multiday";
+          self.#renderNDaysDataDisplay(7);
+          break;
+      }
+      
+      self.#dataDisplayContainer.classList.add("appear-from-bottom");
+      self.#dataDisplayContainer.style.opacity = 1;
+    });
 
-    switch(selectedIndex) {
-      case 0:
-        this.#dataDisplayContainer.className = "data-view today";
-        this.#render1DayDataDisplay();
-        break;
-        case 1:
-        this.#dataDisplayContainer.className = "data-view three-day multiday";
-        this.#renderNDaysDataDisplay(3);
-        break;
-      case 2:
-        this.#dataDisplayContainer.className = "data-view weekly multiday";
-        this.#renderNDaysDataDisplay(7);
-        break;
-    }
+    Utility.triggerAnimation(this.#dataDisplayContainer,
+        "disappear-and-appear-from-bottom");
+
+    // Utility.removeAllChildren(this.#dataDisplayContainer);
+
+    // switch(selectedIndex) {
+    //   case 0:
+    //     this.#dataDisplayContainer.className = "data-view today";
+    //     this.#render1DayDataDisplay();
+    //     break;
+    //     case 1:
+    //     this.#dataDisplayContainer.className = "data-view three-day multiday";
+    //     this.#renderNDaysDataDisplay(3);
+    //     break;
+    //   case 2:
+    //     this.#dataDisplayContainer.className = "data-view weekly multiday";
+    //     this.#renderNDaysDataDisplay(7);
+    //     break;
+    // }
   }
 
   /**

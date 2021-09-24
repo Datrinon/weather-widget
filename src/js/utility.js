@@ -60,7 +60,9 @@ export default class Utility {
   static triggerAnimation(elem, animationName) {
     elem.classList.add(animationName);
 
-    elem.onanimationend = () => {elem.classList.remove(animationName)};
+    elem.addEventListener("animationend", () => {
+      elem.classList.remove(animationName);
+    }, {once : true}); 
   }
 
   /**
