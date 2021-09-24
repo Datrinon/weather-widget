@@ -124,12 +124,11 @@
 .widget-footer {
   display: flex;
   justify-content: space-between;
-  align-items: baseline;
   position: relative;
   font-size: 75%;
 }
 
-.widget-footer .logo {
+.widget-footer .logo-text {
   font-style: italic;
 }
 

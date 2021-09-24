@@ -232,7 +232,7 @@ export default class WeatherWidget {
     reloadButton.setAttribute("title", "Update");
 
     reloadButton.addEventListener("click", () => {
-      this.#updateDisplay.call(self);
+      self.#updateDisplay();
     });
 
     return reloadButton;
@@ -261,6 +261,9 @@ export default class WeatherWidget {
         console.log(data);
         this.#determineBGColor();
         this.#renderDisplayData();
+
+        this.widget.querySelector(".update-time").textContent =
+          format(new Date(), "p");
       }).catch((error) => {
         loadingMessage.stop();
         console.log(error);
@@ -436,6 +439,8 @@ export default class WeatherWidget {
     const selected = dayViewButtons.querySelector(".selected");
     const selectedIndex = Array.from(dayViewButtons.children).indexOf(selected);
 
+
+
     Utility.removeAllChildren(this.#dataDisplayContainer);
 
     switch(selectedIndex) {
@@ -557,9 +562,15 @@ export default class WeatherWidget {
 
   #initFooter() {
     const footer = Utility.createElement("footer", "widget-footer");
+    
     const logo = component.div("logo");
-    logo.append(component.p("Powered by OpenWeather."));
-    this.#widgetContainer.append(logo);    
+    logo.append(component.p("Powered by OpenWeather.", "logo-text"));
+    this.#widgetContainer.append(logo);
+    
+    const lastUpdate = component.p("Last update: ");
+    const time = component.span("--:-- --", "update-time");
+    lastUpdate.append(time);
+    logo.prepend(lastUpdate);
 
     footer.append(logo, this.#initReloadButton());
 
