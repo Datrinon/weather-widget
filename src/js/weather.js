@@ -76,6 +76,9 @@ export default class WeatherWidget {
    */
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
+    const bg = Utility.createElement("div", "bg");
+    this.#widgetContainer.append(bg);
+
     this.#dataDisplayContainer = Utility.createElement("div", "data-view");
     this.#locationApiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
     this.#weatherApiBase = `https://api.openweathermap.org/data/2.5/onecall?appid=${apiKey}`;
@@ -383,28 +386,45 @@ export default class WeatherWidget {
     // 20 - 6 apply night bg
     if (time >= 20 || time < 6) {
       // -> if not clear, apply night-overcast-bg
-      if (condition !== "clear") {
-        bgStyle = "night-overcast-bg";
-      } else {
+      if (condition.includes("clear") || condition.includes("broken clouds")) {
         bgStyle = "night-bg";
+      } else {
+        bgStyle = "night-overcast-bg";
       }
     // else apply day styles
     } else {
-      if ((time >= 6 && time < 9) || (time >= 18 && time < 20)) {
-        bgStyle = "sunrise-sunset-bg";
+      if ((time >= 6 && time < 9)) {
+        bgStyle = "sunrise-bg";
+      } else if (time >= 18 && time < 20) {
+        bgStyle = "sunset-bg";
       } else {
         bgStyle = "sunny-bg";
       }
-      // override any sunny sunrise bg if it's not clear / few clouds.
-      if (!condition.includes("clear") || !condition.includes("broken clouds")) {
+
+      if (!condition.includes("clear")
+        && !condition.includes("few")
+        && !condition.includes("scattered"))
+        {
         bgStyle = "overcast-bg";
       }
     }
 
-    // set bg style
+    // set bg style.
     const root = window.getComputedStyle(document.body);
-    document.querySelector(".weather-widget::before").backgroundImage =
-      root.getPropertyValue(`--${bgStyle}`);
+    const self = this.widget;
+    const bgWrapper = this.widget.querySelector(".bg");
+    const newBg = root.getPropertyValue(`--${bgStyle}`);
+
+    if (newBg !== self.style.background) {
+      bgWrapper.style.background = root.getPropertyValue(`--${bgStyle}`);
+      bgWrapper.classList.add("gradual-opacity");
+      bgWrapper.addEventListener("animationend", () => {
+        // apply the bg color to the original widget.
+        self.style.background = bgWrapper.style.background;
+        // get rid of animation class for the wrapper.
+        bgWrapper.classList.remove("gradual-opacity");
+      }, {once: true});
+    }
   }
 
   /**
