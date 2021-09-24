@@ -367,7 +367,7 @@ export default class WeatherWidget {
 
     let time = new Date();
     time = time.getUTCHours();
-    time = time + (weatherData.timezone_offset / 3600);
+    time = (time + (weatherData.timezone_offset / 3600)) % 24;
 
     // 3. Return them together.
     return {weatherData, location, time};
@@ -377,11 +377,34 @@ export default class WeatherWidget {
    * Called after the API fetches data, determines the bg color given the time and condition.
    */
   #determineBGColor() {
+    let bgStyle;
+    const time = Math.floor(this.#apiData.time);
+    const condition = this.#apiData.weatherData.current.weather[0].description.toLowerCase();
     // 20 - 6 apply night bg
-    // -> if not clear, apply night-overcast-bg
-    // 6 - 7 or 18 - 20 apply sunrise-sunset
-    // 7 - 20 apply sunny bg
-    // -> if not clear, apply overcast-bg
+    if (time >= 20 || time < 6) {
+      // -> if not clear, apply night-overcast-bg
+      if (condition !== "clear") {
+        bgStyle = "night-overcast-bg";
+      } else {
+        bgStyle = "night-bg";
+      }
+    // else apply day styles
+    } else {
+      if ((time >= 6 && time < 9) || (time >= 18 && time < 20)) {
+        bgStyle = "sunrise-sunset-bg";
+      } else {
+        bgStyle = "sunny-bg";
+      }
+      // override any sunny sunrise bg if it's not clear / few clouds.
+      if (!condition.includes("clear") || !condition.includes("broken clouds")) {
+        bgStyle = "overcast-bg";
+      }
+    }
+
+    // set bg style
+    const root = window.getComputedStyle(document.body);
+    document.querySelector(".weather-widget::before").backgroundImage =
+      root.getPropertyValue(`--${bgStyle}`);
   }
 
   /**

@@ -576,7 +576,7 @@ class Component {
       stop() {
         clearInterval(this.id);
         this.loadingTextBase.classList.add("no-opacity");
-        parentElem.removeChild(loadingBase);
+        this.loadingTextBase.remove();
       }
     };
 
