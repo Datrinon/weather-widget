@@ -1,7 +1,9 @@
 # OpenWeather API Weather Widget
 A weather widget which uses the OpenWeather API to update temperatures. 
 
-[Demo Picture](./demo.png "Sample demonstration pciture")
+<p align="center">
+<img src="./demo.png" alt="Sample demo pic" style="display: block; width: 500px;">
+</p>
 
 ## Features
 - Search any location in the world.
@@ -13,3 +15,8 @@ A weather widget which uses the OpenWeather API to update temperatures.
 ## Usage
 - To get a weather widget on a webpage, simply invoke the constructor with your API key.
 - Append the widget using the `.widget` property anywhere on your page.
+
+## Technical Details
+- Built with vanilla JS and CSS
+- Utilizes ES6 promises, fetch API, and async / await.
+- Tooling includes webpack and npm.
