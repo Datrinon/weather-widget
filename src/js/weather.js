@@ -371,9 +371,13 @@ export default class WeatherWidget {
     let weatherResponse = await fetch(this.#weatherApiBase + coords + units + queryString);
     let weatherData = await weatherResponse.json();
 
+    let offset = Math.ceil(weatherData.timezone_offset / 3600);
     let time = new Date();
-    time = time.getUTCHours();
-    time = (time + (weatherData.timezone_offset / 3600)) % 24;
+    // convert to UTC first
+    time.setHours(time.getHours() + (time.getTimezoneOffset() / 60));
+    // now add the offset
+    time.setHours(time.getHours() + offset);
+    time = time.getHours();
 
     // 3. Return them together.
     return {weatherData, location, time};
