@@ -76,8 +76,12 @@ export default class WeatherWidget {
    */
   constructor(apiKey, celsiusMode = false, viewMode = 0, defaultLocation = null) {
     this.#widgetContainer = Utility.createElement("article", "weather-widget");
+    
     const bg = Utility.createElement("div", "bg");
     this.#widgetContainer.append(bg);
+
+    const nightSky = Utility.createElement("div", "night-sky");
+    this.#widgetContainer.append(nightSky);
 
     this.#dataDisplayContainer = Utility.createElement("div", "data-view");
     this.#locationApiBase = `https://api.openweathermap.org/data/2.5/weather?appid=${apiKey}`;
@@ -390,13 +394,16 @@ export default class WeatherWidget {
     let bgStyle;
     const time = Math.floor(this.#apiData.time);
     const condition = this.#apiData.weatherData.current.weather[0].description.toLowerCase();
+    document.querySelector(".night-sky").style.opacity = 0; 
     // 20 - 6 apply night bg
     if (time >= 20 || time < 6) {
       // -> if not clear, apply night-overcast-bg
       if (condition.includes("clear") || condition.includes("broken clouds")) {
         bgStyle = "night-bg";
+        document.querySelector(".night-sky").style.opacity = 1.0; 
       } else {
         bgStyle = "night-overcast-bg";
+        document.querySelector(".night-sky").style.opacity = 0.5; 
       }
     // else apply day styles
     } else {
@@ -539,7 +546,7 @@ export default class WeatherWidget {
     windSpeed.textContent = Math.round(this.#apiData.weatherData.current.wind_speed);
     windDirection.textContent =
       this.#calculateWindDirection(this.#apiData.weatherData.current.wind_deg);
-    condition.textContent = Utility.toSentence(this.#apiData.weatherData.daily[0].weather[0].description);
+    condition.textContent = Utility.toSentence(this.#apiData.weatherData.current.weather[0].description);
   }
 
   /**
