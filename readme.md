@@ -1,4 +1,7 @@
 # OpenWeather API Weather Widget
+
+**View Demo: https://datrinon.github.io/weather-widget/**
+
 A weather widget which uses the OpenWeather API to update temperatures. 
 
 <p align="center">
