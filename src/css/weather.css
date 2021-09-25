@@ -72,11 +72,11 @@
 }
 
 .appear-from-bottom {
-  animation: appear-from-bottom 0.4s ease-out;
+  animation: appear-from-bottom 0.25s ease-out;
 }
 
 .disappear {
-  animation: disappear 0.4s ease-out;
+  animation: disappear 0.25s ease-out;
 }
 
 @keyframes disappear {
