@@ -360,7 +360,7 @@ export default class WeatherWidget {
    */
   async #fetchData(...query) {
     // 1. Location Code.
-    let response = await fetch(this.#locationApiBase + this.#locationQuery);
+    let response = await fetch(this.#locationApiBase + this.#locationQuery, );
     let locationData = await response.json();
     let coords = `&lat=${locationData.coord.lat}&lon=${locationData.coord.lon}&`;
     let location = {
