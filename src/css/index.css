@@ -1,4 +1,12 @@
-
 body {
   background-color: rgb(17, 17, 17);
+}
+
+.page-title {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: white;
+  text-align: center;
+  font-weight: 500;
+  font-size: 120%;
+  font-variant-caps: all-petite-caps;
 }
